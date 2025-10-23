@@ -17,7 +17,7 @@
 
 /* Light Theme */
 :root[data-theme="light"] {
-  --color-bg: #f6f7f9;
+  --color-bg: #e8eaeb;
   --color-header-bg: #ffffff;
   --color-footer-bg: #061f37;
   --color-primary: #061f37;
@@ -28,7 +28,7 @@
   --color-icons-bg: #e7e8ec;
   --color-white: #ffffff;
   --color-black: #000000;
-  --shadows: 0px 0px 15px 1px #f6f7f9;
+  --shadows: 0px 0px 15px 1px #e8eaeb;
   --transition-duration: 0.2s;
   --padding-right-left: 1.5em;
 }
@@ -176,6 +176,13 @@
   -o-transition: var(--transition-duration);
 }
 
+/* Light mode service card adjustments */
+:root[data-theme="light"] .service-card {
+  background-color: var(--color-white);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
 .service-card.animate {
   opacity: 1;
   transform: translateY(0);
@@ -268,6 +275,13 @@
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
+/* Light mode publication card adjustments */
+:root[data-theme="light"] .publication-card {
+  background-color: var(--color-white);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
 .publication-card.animate {
   opacity: 1;
   transform: translateY(0);
@@ -342,6 +356,13 @@
   -moz-transition: var(--transition-duration);
   -ms-transition: var(--transition-duration);
   -o-transition: var(--transition-duration);
+}
+
+/* Light mode testimonial card adjustments */
+:root[data-theme="light"] .testimonial-card {
+  background-color: var(--color-white);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .testimonial-card.animate {

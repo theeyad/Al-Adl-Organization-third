@@ -17,7 +17,7 @@
 
 /* Light Theme */
 :root[data-theme="light"] {
-  --color-bg: #f6f7f9;
+  --color-bg: #e8eaeb;
   --color-header-bg: #ffffff;
   --color-footer-bg: #061f37;
   --color-primary: #061f37;
@@ -28,7 +28,7 @@
   --color-icons-bg: #e7e8ec;
   --color-white: #ffffff;
   --color-black: #000000;
-  --shadows: 0px 0px 15px 1px #f6f7f9;
+  --shadows: 0px 0px 15px 1px #e8eaeb;
   --transition-duration: 0.2s;
   --padding-right-left: 1.5em;
 }
@@ -100,4 +100,9 @@ a {
   font-size: 0.875rem;
   font-weight: 700;
   transition: all 0.2s;
+}
+
+/* Light mode button text color */
+:root[data-theme="light"] .cta-button {
+  color: var(--color-white);
 }

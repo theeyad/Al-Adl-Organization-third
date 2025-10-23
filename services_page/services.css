@@ -15,6 +15,24 @@
   --padding-right-left: 1.5em;
 }
 
+/* Light Theme */
+:root[data-theme="light"] {
+  --color-bg: #e8eaeb;
+  --color-header-bg: #ffffff;
+  --color-footer-bg: #061f37;
+  --color-primary: #061f37;
+  --color-primary-sec: #061f37dd;
+  --color-secondary: #000000;
+  --color-secondary-links: #ffffffcc;
+  --color-icons: #061f37;
+  --color-icons-bg: #e7e8ec;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --shadows: 0px 0px 15px 1px #e8eaeb;
+  --transition-duration: 0.2s;
+  --padding-right-left: 1.5em;
+}
+
 /* Ligh Theme */
 /* :root {
   --color-bg: #f6f7f9;
@@ -144,6 +162,11 @@ main {
   z-index: 5;
 }
 
+/* Light mode button text color */
+:root[data-theme="light"] .back-button {
+  color: var(--color-white);
+}
+
 .back-button:hover {
   transform: translateY(-2px) scale(1.1);
   -webkit-transform: translateY(-2px) scale(1.1);
@@ -170,6 +193,13 @@ main {
   min-height: 400px;
   max-height: 400px;
   display: flex;
+}
+
+/* Light mode service card adjustments */
+:root[data-theme="light"] .service-card {
+  background-color: var(--color-white);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .service-card:hover {

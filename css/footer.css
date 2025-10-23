@@ -17,7 +17,7 @@
 
 /* Light Theme */
 :root[data-theme="light"] {
-  --color-bg: #f6f7f9;
+  --color-bg: #e8eaeb;
   --color-header-bg: #ffffff;
   --color-footer-bg: #061f37;
   --color-primary: #061f37;
@@ -28,7 +28,7 @@
   --color-icons-bg: #e7e8ec;
   --color-white: #ffffff;
   --color-black: #000000;
-  --shadows: 0px 0px 15px 1px #f6f7f9;
+  --shadows: 0px 0px 15px 1px #e8eaeb;
   --transition-duration: 0.2s;
   --padding-right-left: 1.5em;
 }
@@ -88,16 +88,31 @@ footer {
   color: var(--color-primary);
 }
 
+/* Light mode footer logo h2 */
+:root[data-theme="light"] .footer-logo h2 {
+  color: #ffffff;
+}
+
 .footer-brand .lawyer-name {
   margin: 0;
   font-size: 0.75rem;
   color: var(--color-primary);
 }
 
+/* Light mode lawyer name */
+:root[data-theme="light"] .footer-brand .lawyer-name {
+  color: #ffffff;
+}
+
 .footer-description {
   font-size: 0.875rem;
   color: var(--color-secondary);
   max-width: 20rem;
+}
+
+/* Light mode footer description */
+:root[data-theme="light"] .footer-description {
+  color: #ffffffcc;
 }
 
 .footer-section {
@@ -110,6 +125,11 @@ footer {
   font-size: 1.125rem;
   font-weight: 700;
   color: var(--color-primary);
+}
+
+/* Light mode footer section h3 */
+:root[data-theme="light"] .footer-section h3 {
+  color: #ffffff;
 }
 
 .footer-nav {
@@ -133,6 +153,11 @@ footer {
   width: 100%;
 }
 
+/* Light mode footer nav links */
+:root[data-theme="light"] .footer-nav a {
+  color: #ffffffcc;
+}
+
 .footer-nav a:hover {
   color: var(--color-primary);
   transform: translateX(-10px);
@@ -140,6 +165,11 @@ footer {
   -moz-transform: translateX(-10px);
   -ms-transform: translateX(-10px);
   -o-transform: translateX(-10px);
+}
+
+/* Light mode footer nav hover */
+:root[data-theme="light"] .footer-nav a:hover {
+  color: #ffffff;
 }
 
 @media (min-width: 768px) {
@@ -171,6 +201,11 @@ footer {
   -o-transition: 0.2s;
 }
 
+/* Light mode social links */
+:root[data-theme="light"] .social-links a {
+  color: #ffffffcc;
+}
+
 .social-links a:hover {
   color: var(--color-primary);
   transform: translateY(-3px);
@@ -178,6 +213,11 @@ footer {
   -moz-transform: translateY(-3px);
   -ms-transform: translateY(-3px);
   -o-transform: translateY(-3px);
+}
+
+/* Light mode social links hover */
+:root[data-theme="light"] .social-links a:hover {
+  color: #ffffff;
 }
 
 .social-links svg {
@@ -192,7 +232,17 @@ footer {
   text-align: center;
 }
 
+/* Light mode footer bottom border */
+:root[data-theme="light"] .footer-bottom {
+  border-top: 1px solid #ffffff99;
+}
+
 .footer-bottom p {
   font-size: 0.875rem;
   color: var(--color-secondary);
+}
+
+/* Light mode footer bottom text */
+:root[data-theme="light"] .footer-bottom p {
+  color: #ffffff99;
 }
