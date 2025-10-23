@@ -39,15 +39,15 @@ body {
   background-color: var(--color-bg);
   margin: 0;
   transition: background-color var(--transition-duration) ease,
-              color var(--transition-duration) ease;
+    color var(--transition-duration) ease;
 }
 
 /* Theme transition */
 .theme-transition * {
   transition: background-color var(--transition-duration) ease,
-              color var(--transition-duration) ease,
-              border-color var(--transition-duration) ease,
-              box-shadow var(--transition-duration) ease !important;
+    color var(--transition-duration) ease,
+    border-color var(--transition-duration) ease,
+    box-shadow var(--transition-duration) ease !important;
 }
 
 button {

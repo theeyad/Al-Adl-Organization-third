@@ -119,6 +119,7 @@ nav.mobile-nav-active a {
 
 .logo-image {
   width: 4em;
+  background-color: var(--color-header-bg);
 }
 
 @media (min-width: 768px) {
