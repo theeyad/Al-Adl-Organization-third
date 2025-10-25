@@ -1,53 +1,42 @@
 // Contact form functionality
 document.addEventListener("DOMContentLoaded", function () {
-  const contactForm = document.querySelector("#contact-form form");
+  const contactForm = document.getElementById("form");
 
   if (contactForm) {
-    contactForm.addEventListener("submit", function (e) {
+    contactForm.addEventListener("submit", async function (e) {
       e.preventDefault();
 
-      // Get form data
-      const formData = {
-        name: document.querySelector("#name").value,
-        email: document.querySelector("#email").value,
-        message: document.querySelector("#message").value,
-      };
-
-      // Validate form data
-      if (!formData.name || !formData.email || !formData.message) {
-        alert("يرجى ملء جميع الحقول المطلوبة");
-        return;
-      }
-
-      // Email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email)) {
-        alert("يرجى إدخال بريد إلكتروني صحيح");
-        return;
-      }
-
-      // Show loading state
-      const submitButton = contactForm.querySelector(".submit-button");
+      const formData = new FormData(this);
+      const submitButton = this.querySelector("button[type='submit']");
       const originalText = submitButton.textContent;
-      submitButton.textContent = "جاري الإرسال...";
-      submitButton.disabled = true;
 
-      // Here you would integrate with web3forms
-      // For now, we'll simulate the submission
-      setTimeout(() => {
-        // Simulate successful submission
-        console.log("Form submitted:", formData);
+      try {
+        submitButton.textContent = "جاري الإرسال...";
+        submitButton.disabled = true;
 
-        // Show success message
-        alert("تم إرسال رسالتك بنجاح. سنتواصل معك قريباً.");
+        const response = await fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify(Object.fromEntries(formData)),
+        });
 
-        // Reset form
-        contactForm.reset();
+        const result = await response.json();
 
-        // Reset button
+        if (result.success) {
+          alert("تم إرسال رسالتك بنجاح. سنتواصل معك قريباً.");
+          this.reset();
+        } else {
+          alert("فشل في إرسال الرسالة. يرجى المحاولة مرة أخرى.");
+        }
+      } catch (error) {
+        alert("حدث خطأ. يرجى المحاولة مرة أخرى.");
+      } finally {
         submitButton.textContent = originalText;
         submitButton.disabled = false;
-      }, 2000);
+      }
     });
   }
 
