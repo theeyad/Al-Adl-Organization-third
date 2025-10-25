@@ -161,4 +161,27 @@ document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener("scroll", animateOnScroll);
     animateOnScroll(); // Initial check
   }
+
+  // Scroll to top button functionality
+  const backToTopButton = document.querySelector(".back-to-top");
+  if (backToTopButton) {
+    const amountScrolled = 200;
+
+    // Show/hide button based on scroll position
+    window.addEventListener("scroll", function () {
+      if (window.scrollY > amountScrolled) {
+        backToTopButton.classList.add("show");
+      } else {
+        backToTopButton.classList.remove("show");
+      }
+    });
+
+    // Smooth scroll to top when button is clicked
+    backToTopButton.addEventListener("click", function () {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    });
+  }
 });
