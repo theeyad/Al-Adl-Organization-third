@@ -35,12 +35,12 @@
 
 /* Main Content */
 main {
-  padding: 4rem var(--padding-right-left);
+  padding: 4rem 0;
 }
 
 @media (min-width: 1024px) {
   main {
-    padding: 6rem var(--padding-right-left);
+    padding: 6rem 0;
   }
 }
 
@@ -194,8 +194,8 @@ main {
 
 .submit-button {
   width: 100%;
-  background-color: var(--color-primary);
-  color: var(--color-black);
+  background-color: var(--color-black);
+  color: var(--color-secondary);
   padding: 0.875rem 2rem;
   border-radius: 0.5rem;
   font-size: 1rem;
@@ -209,11 +209,11 @@ main {
 
 /* Light mode submit button */
 :root[data-theme="light"] .submit-button {
+  background-color: var(--color-primary);
   color: var(--color-white);
 }
 
 .submit-button:hover {
-  background-color: var(--color-primary-sec);
   transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -258,31 +258,40 @@ main {
 }
 
 .info-item a {
-  color: var(--color-black);
   text-decoration: none;
-  transition: color var(--transition-duration) ease;
+  transition: var(--transition-duration);
+  -webkit-transition: var(--transition-duration);
+  -moz-transition: var(--transition-duration);
+  -ms-transition: var(--transition-duration);
+  -o-transition: var(--transition-duration);
 }
 
 .info-item a:hover {
-  color: var(--color-primary);
+  transform: translateX(-5px);
+  -webkit-transform: translateX(-5px);
+  -moz-transform: translateX(-5px);
+  -ms-transform: translateX(-5px);
+  -o-transform: translateX(-5px);
 }
 
-.info-list .info-item:first-child,
-.info-list .info-item:nth-child(2) {
-  justify-content: space-evenly;
+.info-list .info-item .location:nth-child(2),
+.info-list .info-item .phone:nth-child(2) {
+  margin-right: auto;
+  min-width: 277px;
 }
 
 .location,
 .phone {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.75rem;
 }
 
 .location span:last-child,
-.phone a {
-  color: var(--color-black);
-  line-height: 1.6;
+.phone a,
+.email a {
+  color: var(--color-primary);
+  line-height: 2;
 }
 
 /* Light mode adjustments for contact info */
