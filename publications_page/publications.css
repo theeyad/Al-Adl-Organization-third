@@ -35,12 +35,12 @@
 
 /* Main Content */
 main {
-  padding: 4rem var(--padding-right-left);
+  padding: 4rem 0;
 }
 
 @media (min-width: 1024px) {
   main {
-    padding: 6rem var(--padding-right-left);
+    padding: 6rem 0;
   }
 }
 
