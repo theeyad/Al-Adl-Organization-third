@@ -185,9 +185,7 @@ main {
 
 .form-input:focus,
 .form-textarea:focus {
-  border-color: var(--color-primary);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(243, 198, 35, 0.2);
 }
 
 /* Light mode form inputs */
@@ -356,6 +354,7 @@ main {
   .phone {
     flex-direction: column;
     gap: 0.5rem;
+    align-items: flex-start;
   }
 }
 
