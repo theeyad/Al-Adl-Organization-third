@@ -54,12 +54,12 @@ main {
 }
 
 .whatsapp-contact {
-  width: 270px;
+  width: 320px;
   min-width: 250px;
   display: flex;
   align-items: center;
   background-color: var(--color-primary);
-  padding: 10px 15px;
+  padding: 12px 30px;
   border-radius: 50px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -98,10 +98,6 @@ main {
 }
 
 @media (max-width: 768px) {
-  .whatsapp-contact {
-    padding: 8px 12px;
-  }
-
   .contact-photo {
     width: 30px;
     height: 30px;
