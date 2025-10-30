@@ -49,11 +49,12 @@ main {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 15px;
+  gap: 20px;
   margin: 3rem 0;
 }
 
 .whatsapp-contact {
+  width: 270px;
   min-width: 250px;
   display: flex;
   align-items: center;
@@ -97,10 +98,6 @@ main {
 }
 
 @media (max-width: 768px) {
-  .mobile-gap {
-    gap: 10px;
-  }
-
   .whatsapp-contact {
     padding: 8px 12px;
   }
