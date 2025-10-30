@@ -1,5 +1,17 @@
 // Contact form functionality
 document.addEventListener("DOMContentLoaded", function () {
+  // WhatsApp contact functionality
+  const whatsappContacts = document.querySelectorAll('.whatsapp-contact');
+  
+  whatsappContacts.forEach(contact => {
+    contact.addEventListener('click', function() {
+      const phoneNumber = this.getAttribute('data-phone');
+      if (phoneNumber) {
+        window.open(`https://wa.me/${phoneNumber}`, '_blank');
+      }
+    });
+  });
+  
   const contactForm = document.getElementById("form");
 
   if (contactForm) {
