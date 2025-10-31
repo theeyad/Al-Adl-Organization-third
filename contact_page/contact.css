@@ -44,13 +44,20 @@ main {
   }
 }
 
+.whatsapp-title {
+  color: var(--color-primary);
+  text-align: center;
+  margin-top: 2em;
+  margin-bottom: 0;
+}
+
 /* WhatsApp Contacts */
 .whatsapp-contacts {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 20px;
-  margin: 3rem 0;
+  margin: 2em 0 3em 0;
 }
 
 .whatsapp-contact {
@@ -203,7 +210,7 @@ main {
 }
 
 .form-header h2 {
-  font-size: 2.5rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--color-black);
   margin-top: 0;
@@ -212,7 +219,7 @@ main {
 
 @media (min-width: 768px) {
   .form-header h2 {
-    font-size: 3rem;
+    font-size: 2rem;
   }
 }
 
@@ -299,7 +306,7 @@ main {
 }
 
 .contact-info h3 {
-  font-size: 1.875rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--color-primary);
   text-align: right;
