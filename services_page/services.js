@@ -168,6 +168,11 @@ const serviceDescriptions = {
       },
       {
         id: "expertise-exchange",
+        title: "التعاون المشترك مع دول الخليج",
+        description: "تعاون قانوني كامل ومتميز مع دول الخليج.",
+      },
+      {
+        id: "expertise-exchange",
         title: "تبادل الخبرات والاستشارات القانونية",
         description:
           "نوفر منصة للتعاون وتبادل الخبرات بين المكاتب القانونية العربية والخليجية لتقديم استشارات متخصصة.",
@@ -750,8 +755,7 @@ const serviceDescriptions = {
       {
         id: "general-courts-lawsuits",
         title: "إقامة الدعاوى ومتابعتها أمام المحاكم العامة",
-        description:
-          "تمثيل الأفراد والمؤسسات في الدعاوى المدنية.",
+        description: "تمثيل الأفراد والمؤسسات في الدعاوى المدنية.",
       },
       {
         id: "petitions-defense-memoranda-preparation",
@@ -913,8 +917,7 @@ const serviceDescriptions = {
       },
       {
         id: "cyber-crimes-anti-cyber-crimes-law-saudi",
-        title:
-          "الجرائم المعلوماتية وفق النظام السعودي",
+        title: "الجرائم المعلوماتية وفق النظام السعودي",
         description:
           "التعامل مع القضايا طبقًا لأنظمة المملكة واللوائح التنفيذية.",
       },
@@ -994,8 +997,7 @@ const serviceDescriptions = {
       {
         id: "multinational-companies-legal-consultation",
         title: "استشارات قانونية للشركات متعددة الجنسيات",
-        description:
-          "دعم قانوني للشركات في المعاملات التجارية.",
+        description: "دعم قانوني للشركات في المعاملات التجارية.",
       },
     ],
   },
@@ -1095,8 +1097,7 @@ const serviceDescriptions = {
       {
         id: "legal-memoranda-pleadings-defense",
         title: "إعداد المذكرات القانونية والمرافعات والدفاعات",
-        description:
-          "إعداد المذكرات القانونية أمام الجهات القضائية والإدارية.",
+        description: "إعداد المذكرات القانونية أمام الجهات القضائية والإدارية.",
       },
       {
         id: "contracts-official-documentation",
@@ -1188,8 +1189,7 @@ const serviceDescriptions = {
       {
         id: "data-certificates-accident-reports-traffic-powers-attorney",
         title: "شهادات البيانات وكشوف الحوادث والتوكيلات المرورية",
-        description:
-          "استخراج شهادات البيانات والتوكيلات المرورية.",
+        description: "استخراج شهادات البيانات والتوكيلات المرورية.",
       },
       {
         id: "traffic-departments-transport-authorities-representation",
