@@ -96,11 +96,14 @@ footer {
 .footer-brand .lawyer-name {
   margin: 0;
   font-size: 0.75rem;
+}
+
+.footer-brand .lawyer-name a {
   color: var(--color-primary);
 }
 
 /* Light mode lawyer name */
-:root[data-theme="light"] .footer-brand .lawyer-name {
+:root[data-theme="light"] .footer-brand .lawyer-name a {
   color: #ffffff;
 }
 
