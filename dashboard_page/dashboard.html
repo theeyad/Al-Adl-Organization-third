@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة المكتب القانوني</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="../img/logo1.png" type="image/x-icon">
+
+    <!-- Base Styles -->
+    <link href="../css/base.css" rel="stylesheet" />
+
+    <!-- Dashboard Styles -->
+    <link href="./dashboard.css" rel="stylesheet" />
+
+    <!-- SDK Scripts -->
+    <script src="/_sdk/data_sdk.js"></script>
+    <script src="/_sdk/element_sdk.js"></script>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1 id="firm-name" class="sidebar-title">مؤسسة العدل</h1>
+            <p class="sidebar-subtitle">نظام الإدارة المتكامل</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-page="home">
+                <i class="fas fa-home"></i>
+                <span>الصفحة الرئيسية</span>
+            </a>
+            <a href="#" class="nav-item" data-page="services">
+                <i class="fas fa-briefcase"></i>
+                <span>الخدمات</span>
+            </a>
+            <a href="#" class="nav-item" data-page="posts">
+                <i class="fas fa-newspaper"></i>
+                <span>المنشورات</span>
+            </a>
+            <a href="#" class="nav-item" data-page="cases">
+                <i class="fas fa-gavel"></i>
+                <span>جدول القضايا</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <p class="user-name">أحمد الغباشي</p>
+                    <p class="user-email">mwsstaldl@gmail.com</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="بحث في القضايا والعملاء...">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+            <div id="quote-container" class="quote-box">
+                <p id="quote-text">العدل أساس الملك</p>
+            </div>
+            <div class="header-controls">
+                <div id="clock" class="clock"></div>
+                <button id="theme-toggle" class="theme-toggle" onclick="toggleTheme()" title="تبديل الوضع">
+                    <i id="theme-icon" class="fas fa-sun"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Page Container -->
+        <div class="page-container">
+            <!-- Home Page -->
+            <div id="home-page" class="page-content">
+                <section class="content-section">
+                    <div class="section-header">
+                        <h2>ما نقوم به</h2>
+                        <button class="btn-primary" onclick="showAddCardModal('home', 'header1')">
+                            <i class="fas fa-plus"></i>
+                            <span>إضافة بطاقة</span>
+                        </button>
+                    </div>
+                    <div id="home-header1-cards" class="cards-grid"></div>
+                </section>
+
+                <section class="content-section">
+                    <div id="service-cards-section" class="cards-grid"></div>
+                </section>
+
+                <section class="content-section">
+                    <div class="section-header">
+                        <h2>أحدث المنشورات</h2>
+                        <button class="btn-primary" onclick="showAddCardModal('home', 'header2')">
+                            <i class="fas fa-plus"></i>
+                            <span>إضافة بطاقة</span>
+                        </button>
+                    </div>
+                    <div id="home-header2-cards" class="cards-grid"></div>
+                </section>
+
+                <section class="content-section">
+                    <div class="section-header">
+                        <h2>آراء عملائنا</h2>
+                        <button class="btn-primary" onclick="showAddCardModal('home', 'header3')">
+                            <i class="fas fa-plus"></i>
+                            <span>إضافة بطاقة</span>
+                        </button>
+                    </div>
+                    <div id="home-header3-cards" class="cards-grid"></div>
+                </section>
+            </div>
+
+            <!-- Services Page -->
+            <div id="services-page" class="page-content hidden">
+                <section class="content-section">
+                    <div class="section-header">
+                        <h2>الخدمات القانونية</h2>
+                        <button class="btn-primary" onclick="showAddCardModal('services', 'main')">
+                            <i class="fas fa-plus"></i>
+                            <span>إضافة خدمة جديدة</span>
+                        </button>
+                    </div>
+                    <div id="services-cards" class="cards-grid"></div>
+                </section>
+            </div>
+
+            <!-- Posts Page -->
+            <div id="posts-page" class="page-content hidden">
+                <section class="content-section">
+                    <div class="section-header">
+                        <h2>المنشورات والأخبار</h2>
+                        <button class="btn-primary" onclick="showAddCardModal('posts', 'main')">
+                            <i class="fas fa-plus"></i>
+                            <span>إضافة منشور جديد</span>
+                        </button>
+                    </div>
+                    <div id="posts-cards" class="cards-grid"></div>
+                </section>
+            </div>
+
+            <!-- Cases Page -->
+            <div id="cases-page" class="page-content hidden">
+                <section class="content-section">
+                    <div class="section-header">
+                        <h2>جدول القضايا</h2>
+                    </div>
+                    <div id="cases-table-container"></div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Card Modal -->
+    <div id="add-card-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>إضافة بطاقة جديدة</h3>
+            <form id="add-card-form" onsubmit="handleAddCard(event)">
+                <div class="form-group">
+                    <label>العنوان</label>
+                    <input type="text" id="card-title" required>
+                </div>
+                <div class="form-group">
+                    <label>الوصف</label>
+                    <textarea id="card-description" required rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>الأيقونة (Font Awesome)</label>
+                    <input type="text" id="card-icon" placeholder="fa-gavel" required>
+                </div>
+                <div class="form-group">
+                    <label>القيمة (اختياري)</label>
+                    <input type="text" id="card-value" placeholder="150">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" id="submit-card-btn" class="btn-primary">إضافة</button>
+                    <button type="button" onclick="closeAddCardModal()" class="btn-secondary">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Card Modal -->
+    <div id="edit-card-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>تعديل البطاقة</h3>
+            <form id="edit-card-form" onsubmit="handleEditCard(event)">
+                <input type="hidden" id="edit-card-id">
+                <div class="form-group">
+                    <label>العنوان</label>
+                    <input type="text" id="edit-card-title" required>
+                </div>
+                <div class="form-group">
+                    <label>الوصف</label>
+                    <textarea id="edit-card-description" required rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>الأيقونة (Font Awesome)</label>
+                    <input type="text" id="edit-card-icon" required>
+                </div>
+                <div class="form-group">
+                    <label>القيمة (اختياري)</label>
+                    <input type="text" id="edit-card-value">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" id="update-card-btn" class="btn-primary">حفظ التغييرات</button>
+                    <button type="button" onclick="closeEditCardModal()" class="btn-secondary">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="./dashboard.js"></script>
+</body>
+
+</html>
