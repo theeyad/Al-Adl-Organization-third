@@ -143,28 +143,7 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
     button.disabled = false;
     button.style.opacity = "1";
 
-    const messageDiv = document.createElement("div");
-    messageDiv.style.cssText = `
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(243, 198, 35, 0.95);
-            color: #000000;
-            padding: 15px 30px;
-            border-radius: 8px;
-            font-weight: 600;
-            box-shadow: 0 4px 20px rgba(243, 198, 35, 0.4);
-            z-index: 1000;
-            animation: slideDown 0.3s ease;
-        `;
-    messageDiv.textContent =
-      "هذا نموذج تجريبي - لا يتم معالجة بيانات تسجيل الدخول";
-    document.body.appendChild(messageDiv);
-
-    setTimeout(() => {
-      messageDiv.style.animation = "slideUp 0.3s ease";
-      setTimeout(() => messageDiv.remove(), 300);
-    }, 3000);
+    // Navigate to dashboard page
+    window.location.href = "../dashboard_page/dashboard.html";
   }, 1500);
 });
