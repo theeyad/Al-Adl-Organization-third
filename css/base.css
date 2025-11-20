@@ -62,6 +62,10 @@ button {
   font-family: "Cairo", sans-serif;
 }
 
+input, textarea {
+  font-family: "Cairo", sans-serif;
+}
+
 /* Layout */
 .relative {
   position: relative;

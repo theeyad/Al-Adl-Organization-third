@@ -1,5 +1,10 @@
 // Dashboard Page JavaScript
 
+// Logout Function
+function logout() {
+  window.location.href = "../login_page/login.html";
+}
+
 const defaultConfig = {
   firm_name: "مكتب المحاماة",
   quote_text: "العدل أساس الملك",
@@ -23,34 +28,38 @@ let isDarkMode = true;
 // Theme Toggle
 function toggleTheme() {
   isDarkMode = !isDarkMode;
-  const themeIcon = document.getElementById("theme-icon");
+  const themeIcon = document.querySelector("#theme-toggle i");
+  const root = document.documentElement;
 
   if (isDarkMode) {
-    themeIcon.className = "fas fa-sun text-xl text-yellow-500";
-    document.body.style.backgroundColor = "#111827";
-    document
-      .querySelectorAll(".bg-gray-900")
-      .forEach((el) => (el.style.backgroundColor = "#111827"));
-    document
-      .querySelectorAll(".bg-gray-800")
-      .forEach((el) => (el.style.backgroundColor = "#1f2937"));
-    document
-      .querySelectorAll(".bg-gray-700")
-      .forEach((el) => (el.style.backgroundColor = "#374151"));
-    document.body.style.color = "#f3f4f6";
+    // Dark mode
+    root.setAttribute("data-theme", "dark");
+    root.style.setProperty("--color-bg", "#000000");
+    root.style.setProperty("--color-primary", "#f3c623");
+    root.style.setProperty("--color-primary-sec", "#ffdf6d");
+    root.style.setProperty("--color-secondary", "#ffffff");
+    root.style.setProperty("--color-icons", "#ffffff");
+    root.style.setProperty("--shadows", "0px 0px 15px 1px #f3c623");
+
+    document.body.style.backgroundColor = "#000000";
+    document.body.style.color = "#ffffff";
+    themeIcon.className = "fa-solid fa-sun";
   } else {
-    themeIcon.className = "fas fa-moon text-xl text-yellow-500";
+    // Light mode
+    root.setAttribute("data-theme", "light");
+    root.style.setProperty("--color-bg", "#f3f4f6");
+    root.style.setProperty("--color-primary", "#f3c623");
+    root.style.setProperty("--color-primary-sec", "#ffdf6d");
+    root.style.setProperty("--color-secondary", "#1f2937");
+    root.style.setProperty("--color-icons", "#1f2937");
+    root.style.setProperty(
+      "--shadows",
+      "0px 0px 15px 1px rgba(243, 198, 35, 0.3)"
+    );
+
     document.body.style.backgroundColor = "#f3f4f6";
-    document
-      .querySelectorAll(".bg-gray-900")
-      .forEach((el) => (el.style.backgroundColor = "#f3f4f6"));
-    document
-      .querySelectorAll(".bg-gray-800")
-      .forEach((el) => (el.style.backgroundColor = "#ffffff"));
-    document
-      .querySelectorAll(".bg-gray-700")
-      .forEach((el) => (el.style.backgroundColor = "#e5e7eb"));
     document.body.style.color = "#1f2937";
+    themeIcon.className = "fa-solid fa-moon";
   }
 
   renderCards();
@@ -461,6 +470,16 @@ function showToast(message, type = "success") {
 
 // Initialize on page load
 document.addEventListener("DOMContentLoaded", () => {
+  // Initialize theme
+  const root = document.documentElement;
+  root.setAttribute("data-theme", "dark");
+  root.style.setProperty("--color-bg", "#000000");
+  root.style.setProperty("--color-primary", "#f3c623");
+  root.style.setProperty("--color-primary-sec", "#ffdf6d");
+  root.style.setProperty("--color-secondary", "#ffffff");
+  root.style.setProperty("--color-icons", "#ffffff");
+  root.style.setProperty("--shadows", "0px 0px 15px 1px #f3c623");
+
   renderServiceCards();
   renderCasesTable();
   renderCards();
