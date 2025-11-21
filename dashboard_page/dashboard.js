@@ -7,13 +7,12 @@ function logout() {
 
 const defaultConfig = {
   firm_name: "مكتب المحاماة",
-  quote_text: "العدل أساس الملك",
   add_case_button: "+ إضافة قضية جديدة",
   export_button: "تصدير Excel",
-  background_color: "#111827",
+  background_color: "#000000",
   surface_color: "#1f2937",
   text_color: "#f3f4f6",
-  primary_action_color: "#d97706",
+  primary_action_color: "#f3c623",
   secondary_action_color: "#059669",
   font_family: "Cairo",
   font_size: 16,
@@ -24,48 +23,6 @@ let currentPage = "home";
 let currentModalPage = "";
 let currentModalSection = "";
 let isDarkMode = true;
-
-// Theme Toggle
-function toggleTheme() {
-  isDarkMode = !isDarkMode;
-  const themeIcon = document.querySelector("#theme-toggle i");
-  const root = document.documentElement;
-
-  if (isDarkMode) {
-    // Dark mode
-    root.setAttribute("data-theme", "dark");
-    root.style.setProperty("--color-bg", "#000000");
-    root.style.setProperty("--color-primary", "#f3c623");
-    root.style.setProperty("--color-primary-sec", "#ffdf6d");
-    root.style.setProperty("--color-secondary", "#ffffff");
-    root.style.setProperty("--color-icons", "#ffffff");
-    root.style.setProperty("--shadows", "0px 0px 15px 1px #f3c623");
-
-    document.body.style.backgroundColor = "#000000";
-    document.body.style.color = "#ffffff";
-    themeIcon.className = "fa-solid fa-sun";
-  } else {
-    // Light mode
-    root.setAttribute("data-theme", "light");
-    root.style.setProperty("--color-bg", "#f3f4f6");
-    root.style.setProperty("--color-primary", "#f3c623");
-    root.style.setProperty("--color-primary-sec", "#ffdf6d");
-    root.style.setProperty("--color-secondary", "#1f2937");
-    root.style.setProperty("--color-icons", "#1f2937");
-    root.style.setProperty(
-      "--shadows",
-      "0px 0px 15px 1px rgba(243, 198, 35, 0.3)"
-    );
-
-    document.body.style.backgroundColor = "#f3f4f6";
-    document.body.style.color = "#1f2937";
-    themeIcon.className = "fa-solid fa-moon";
-  }
-
-  renderCards();
-  renderCasesTable();
-  renderServiceCards();
-}
 
 // Clock
 function updateClock() {
@@ -96,39 +53,116 @@ function switchPage(page) {
   document.querySelector(`[data-page="${page}"]`).classList.add("active");
 
   document.querySelectorAll(".page-content").forEach((content) => {
-    content.classList.add("hidden");
+    content.classList.add("page-hidden");
   });
-  document.getElementById(`${page}-page`).classList.remove("hidden");
+  document.getElementById(`${page}-page`).classList.remove("page-hidden");
 }
 
 // Modal Functions
 function showAddCardModal(page, section) {
   currentModalPage = page;
   currentModalSection = section;
-  document.getElementById("add-card-modal").classList.remove("hidden");
-  document.getElementById("add-card-modal").classList.add("flex");
-  document.getElementById("add-card-form").reset();
+
+  // Determine which modal to show based on section
+  let modalId = "add-card-modal-services"; // default
+  if (section === "header2") {
+    modalId = "add-card-modal-publications";
+  } else if (section === "header3") {
+    modalId = "add-card-modal-testimonials";
+  }
+
+  document.getElementById(modalId).classList.remove("modal-hidden");
+
+  // Reset the appropriate form
+  const formId = modalId.replace("modal", "form");
+  const form = document.getElementById(formId);
+  if (form) form.reset();
 }
 
-function closeAddCardModal() {
-  document.getElementById("add-card-modal").classList.add("hidden");
-  document.getElementById("add-card-modal").classList.remove("flex");
+function closeAddCardModal(type = "services") {
+  const modalId = `add-card-modal-${type}`;
+  document.getElementById(modalId).classList.add("modal-hidden");
 }
 
-function showEditCardModal(card) {
-  document.getElementById("edit-card-id").value = card.__backendId;
-  document.getElementById("edit-card-title").value = card.title;
-  document.getElementById("edit-card-description").value = card.description;
-  document.getElementById("edit-card-icon").value = card.icon;
-  document.getElementById("edit-card-value").value = card.value || "";
-  document.getElementById("edit-card-modal").classList.remove("hidden");
-  document.getElementById("edit-card-modal").classList.add("flex");
+function showEditCardModal(card, type = "services") {
+  const modalId = `edit-card-modal-${type}`;
+  const modal = document.getElementById(modalId);
+
+  if (type === "services") {
+    document.getElementById("edit-card-id-services").value = card.__backendId;
+    document.getElementById("edit-card-title-services").value = card.title;
+    document.getElementById("edit-card-icon-services").value = card.icon;
+  } else if (type === "publications") {
+    document.getElementById("edit-card-id-publications").value =
+      card.__backendId;
+    document.getElementById("edit-card-title-publications").value = card.title;
+    document.getElementById("edit-card-excerpt-publications").value =
+      card.description || "";
+  } else if (type === "testimonials") {
+    document.getElementById("edit-card-id-testimonials").value =
+      card.__backendId;
+    document.getElementById("edit-card-text-testimonials").value =
+      card.description || "";
+    document.getElementById("edit-card-name-testimonials").value = card.title;
+  }
+
+  modal.classList.remove("modal-hidden");
 }
 
-function closeEditCardModal() {
-  document.getElementById("edit-card-modal").classList.add("hidden");
-  document.getElementById("edit-card-modal").classList.remove("flex");
+function closeEditCardModal(type = "services") {
+  const modalId = `edit-card-modal-${type}`;
+  document.getElementById(modalId).classList.add("modal-hidden");
 }
+
+// Setup click-outside listeners for all modals
+document.addEventListener("DOMContentLoaded", () => {
+  const modalTypes = ["services", "publications", "testimonials"];
+
+  modalTypes.forEach((type) => {
+    // Add modal click listeners
+    const addModal = document.getElementById(`add-card-modal-${type}`);
+    if (addModal) {
+      addModal.addEventListener("click", (e) => {
+        if (e.target === addModal) {
+          closeAddCardModal(type);
+        }
+      });
+    }
+
+    // Edit modal click listeners
+    const editModal = document.getElementById(`edit-card-modal-${type}`);
+    if (editModal) {
+      editModal.addEventListener("click", (e) => {
+        if (e.target === editModal) {
+          closeEditCardModal(type);
+        }
+      });
+    }
+  });
+
+  // Delete confirmation modal listeners
+  const deleteConfirmModal = document.getElementById("delete-confirm-modal");
+  if (deleteConfirmModal) {
+    // Click outside to close
+    deleteConfirmModal.addEventListener("click", (e) => {
+      if (e.target === deleteConfirmModal) {
+        closeDeleteConfirmModal();
+      }
+    });
+  }
+
+  // Confirm delete button
+  const confirmDeleteBtn = document.getElementById("confirm-delete-btn");
+  if (confirmDeleteBtn) {
+    confirmDeleteBtn.addEventListener("click", confirmDelete);
+  }
+
+  // Cancel delete button
+  const cancelDeleteBtn = document.getElementById("cancel-delete-btn");
+  if (cancelDeleteBtn) {
+    cancelDeleteBtn.addEventListener("click", closeDeleteConfirmModal);
+  }
+});
 
 // Handle Add Card
 async function handleAddCard(event) {
@@ -137,7 +171,7 @@ async function handleAddCard(event) {
   const submitBtn = document.getElementById("submit-card-btn");
   const originalText = submitBtn.textContent;
   submitBtn.disabled = true;
-  submitBtn.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+  submitBtn.innerHTML = '<div class="loading-spinner"></div>';
 
   if (allCards.length >= 999) {
     showToast(
@@ -188,7 +222,7 @@ async function handleEditCard(event) {
   const updateBtn = document.getElementById("update-card-btn");
   const originalText = updateBtn.textContent;
   updateBtn.disabled = true;
-  updateBtn.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+  updateBtn.innerHTML = '<div class="loading-spinner"></div>';
 
   const cardId = document.getElementById("edit-card-id").value;
   const card = allCards.find((c) => c.__backendId === cardId);
@@ -218,77 +252,142 @@ async function handleEditCard(event) {
   updateBtn.textContent = originalText;
 }
 
-// Delete Card
-async function deleteCard(card) {
-  const deleteBtn = event.target.closest("button");
-  const originalHTML = deleteBtn.innerHTML;
+// Store card data for deletion
+let cardToDelete = null;
+let deleteButtonElement = null;
 
-  deleteBtn.disabled = true;
-  deleteBtn.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+// Delete Card - Show confirmation modal
+function deleteCard(card, deleteBtn) {
+  cardToDelete = card;
+  deleteButtonElement = deleteBtn;
 
-  const result = await window.dataSdk.delete(card);
-
-  if (result.isOk) {
-    showToast("تم حذف البطاقة بنجاح", "success");
-  } else {
-    showToast("حدث خطأ أثناء حذف البطاقة", "error");
-    deleteBtn.disabled = false;
-    deleteBtn.innerHTML = originalHTML;
-  }
+  // Show delete confirmation modal
+  document
+    .getElementById("delete-confirm-modal")
+    .classList.remove("modal-hidden");
 }
 
-// Render Service Cards
+// Confirm delete
+async function confirmDelete() {
+  if (!cardToDelete || !deleteButtonElement) return;
+
+  const cardElement = deleteButtonElement.closest(".service-card");
+  const originalHTML = deleteButtonElement.innerHTML;
+  deleteButtonElement.disabled = true;
+  deleteButtonElement.innerHTML = '<div class="loading-spinner"></div>';
+
+  try {
+    // Try to delete via SDK if it has a valid backend ID
+    if (
+      cardToDelete.__backendId &&
+      cardToDelete.__backendId !== cardToDelete.title
+    ) {
+      const result = await window.dataSdk.delete(cardToDelete);
+      if (!result || !result.isOk) {
+        throw new Error("Backend delete failed");
+      }
+    }
+
+    // Remove the card from DOM
+    if (cardElement) {
+      cardElement.remove();
+    }
+
+    showToast("تم حذف البطاقة بنجاح", "success");
+    closeDeleteConfirmModal();
+  } catch (error) {
+    console.error("Delete error:", error);
+    showToast("حدث خطأ أثناء حذف البطاقة", "error");
+    deleteButtonElement.disabled = false;
+    deleteButtonElement.innerHTML = originalHTML;
+  }
+
+  cardToDelete = null;
+  deleteButtonElement = null;
+}
+
+// Close delete confirmation modal
+function closeDeleteConfirmModal() {
+  document.getElementById("delete-confirm-modal").classList.add("modal-hidden");
+  cardToDelete = null;
+  deleteButtonElement = null;
+}
+
+// Render Service Cards (for "ما نقوم به" section - matches home page style)
 function renderServiceCards() {
   const container = document.getElementById("service-cards-section");
   if (!container) return;
 
   const config = window.elementSdk?.config || defaultConfig;
-  const surfaceColor = config.surface_color || defaultConfig.surface_color;
-  const textColor = config.text_color || defaultConfig.text_color;
   const primaryColor =
     config.primary_action_color || defaultConfig.primary_action_color;
-  const bgColor = config.background_color || defaultConfig.background_color;
 
   const services = [
     {
       title: "خدمات الشركات",
-      icon: "fa-building",
-      description:
-        "تأسيس الشركات، العقود التجارية، والاستشارات القانونية للشركات",
+      icon: "business_center",
     },
     {
       title: "خدمات المستثمرين والأجانب",
-      icon: "fa-globe",
-      description: "تراخيص الاستثمار، الإقامات، والتأشيرات للمستثمرين الأجانب",
+      icon: "monetization_on",
     },
     {
       title: "خدمات القطاع الصناعي",
-      icon: "fa-industry",
-      description: "التراخيص الصناعية، العقود، والاستشارات القانونية الصناعية",
+      icon: "factory",
     },
   ];
 
   container.innerHTML = services
     .map(
       (service) => `
-    <div class="rounded-2xl shadow-2xl p-8 card-hover border border-gray-700 text-center relative" style="background-color: ${surfaceColor}; color: ${textColor};">
-      <div class="absolute top-4 left-4 flex gap-2">
-        <button class="w-8 h-8 rounded-lg transition flex items-center justify-center shadow-md hover:opacity-80" style="background: ${primaryColor}; color: ${bgColor};" title="تعديل">
-          <i class="fas fa-edit text-sm"></i>
+    <div class="service-card" data-service-title="${service.title}">
+      <div class="card-actions">
+        <button class="card-action-btn edit-btn" style="background: #756a41;" title="تعديل">
+          <i class="fas fa-edit"></i>
         </button>
-        <button class="w-8 h-8 bg-red-600 hover:bg-red-700 rounded-lg transition flex items-center justify-center shadow-md" title="حذف">
-          <i class="fas fa-trash text-sm text-white"></i>
+        <button class="card-action-btn card-action-delete delete-btn" title="حذف">
+          <i class="fas fa-trash"></i>
         </button>
       </div>
-      <div class="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center shadow-lg" style="background: ${primaryColor};">
-        <i class="fas ${service.icon} text-3xl" style="color: ${bgColor};"></i>
-      </div>
-      <h3 class="text-2xl font-bold" style="color: ${primaryColor};">${service.title}</h3>
-      <p class="text-sm mt-2">${service.description}</p>
+      <span class="material-symbols-outlined service-icon">${service.icon}</span>
+      <h3 class="service-title">${service.title}</h3>
     </div>
   `
     )
     .join("");
+
+  // Add event listeners to edit and delete buttons
+  container.querySelectorAll(".edit-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const card = btn.closest(".service-card");
+      const title = card.dataset.serviceTitle;
+      const mockCard = {
+        __backendId: title,
+        title: title,
+        description: "",
+        icon: "business_center",
+        value: "",
+      };
+      showEditCardModal(mockCard, "services");
+    });
+  });
+
+  container.querySelectorAll(".delete-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const card = btn.closest(".service-card");
+      const title = card.dataset.serviceTitle;
+      const mockCard = {
+        __backendId: title,
+        title: title,
+        description: "",
+        icon: "business_center",
+        value: "",
+      };
+      deleteCard(mockCard, btn);
+    });
+  });
 }
 
 // Render Cases Table
@@ -306,116 +405,112 @@ function renderCasesTable() {
     config.secondary_action_color || defaultConfig.secondary_action_color;
 
   container.innerHTML = `
-    <div class="bg-gray-800 rounded-xl shadow-2xl overflow-hidden border border-gray-700" style="background-color: ${surfaceColor}; color: ${textColor};">
-      <div class="p-6 border-b border-gray-700" style="background: linear-gradient(135deg, ${surfaceColor} 0%, ${bgColor} 100%);">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg" style="background: ${primaryColor};">
-              <i class="fas fa-gavel text-xl" style="color: ${bgColor};"></i>
-            </div>
-            <div>
-              <h3 class="text-2xl font-bold" style="color: ${primaryColor};">جدول القضايا</h3>
-              <p class="text-sm opacity-75 mt-1">إدارة ومتابعة جميع القضايا</p>
-            </div>
+    <div class="cases-table-wrapper" style="background-color: ${surfaceColor}; color: ${textColor};">
+      <div class="cases-table-header" style="background: linear-gradient(135deg, ${surfaceColor} 0%, ${bgColor} 100%);">
+        <div class="cases-table-title">
+          <div class="cases-table-icon" style="background: ${primaryColor};">
+            <i class="fas fa-gavel" style="color: ${bgColor};"></i>
+          </div>
+          <div>
+            <h3 style="color: ${primaryColor};">جدول القضايا</h3>
+            <p>إدارة ومتابعة جميع القضايا</p>
           </div>
         </div>
       </div>
       
-      <div class="p-6 border-b border-gray-700 flex items-center justify-between flex-wrap gap-4">
-        <div class="flex gap-3">
-          <button class="px-6 py-3 rounded-xl font-semibold transition hover:opacity-90 shadow-lg flex items-center" style="background: ${primaryColor}; color: ${bgColor};">
-            <i class="fas fa-plus ml-2"></i>
+      <div class="cases-table-controls">
+        <div class="cases-table-buttons">
+          <button class="btn-primary" style="background: ${primaryColor}; color: ${bgColor};">
+            <i class="fas fa-plus"></i>
             <span>إضافة قضية جديدة</span>
           </button>
-          <button class="px-6 py-3 rounded-xl font-semibold transition hover:opacity-90 shadow-lg flex items-center" style="background: ${secondaryColor}; color: white;">
-            <i class="fas fa-file-excel ml-2"></i>
+          <button class="btn-secondary" style="background: ${secondaryColor}; color: white;">
+            <i class="fas fa-file-excel"></i>
             <span>تصدير Excel</span>
           </button>
         </div>
-        <div class="flex items-center gap-3">
-          <div class="relative">
-            <input type="text" placeholder="بحث في القضايا..." 
-                   class="bg-gray-700 text-gray-100 rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-2 transition" 
-                   style="border: 1px solid ${primaryColor}40;">
-            <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
-          </div>
-          <button class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition">
+        <div class="cases-table-search">
+          <input type="text" placeholder="بحث في القضايا..." 
+                 class="search-input" 
+                 style="border: 1px solid ${primaryColor}40;">
+          <i class="fas fa-search"></i>
+          <button class="filter-btn">
             <i class="fas fa-filter"></i>
           </button>
         </div>
       </div>
       
-      <div class="overflow-x-auto">
-        <table class="w-full">
+      <div class="cases-table-scroll">
+        <table class="cases-table">
           <thead>
-            <tr class="border-b-2" style="border-color: ${primaryColor}40; background: ${bgColor};">
-              <th class="text-right py-4 px-6 font-bold text-sm uppercase tracking-wider" style="color: ${primaryColor};">
-                <div class="flex items-center gap-2">
-                  <i class="fas fa-user text-xs"></i>
+            <tr style="border-color: ${primaryColor}40; background: ${bgColor};">
+              <th style="color: ${primaryColor};">
+                <div>
+                  <i class="fas fa-user"></i>
                   <span>اسم العميل</span>
                 </div>
               </th>
-              <th class="text-right py-4 px-6 font-bold text-sm uppercase tracking-wider" style="color: ${primaryColor};">
-                <div class="flex items-center gap-2">
-                  <i class="fas fa-hashtag text-xs"></i>
+              <th style="color: ${primaryColor};">
+                <div>
+                  <i class="fas fa-hashtag"></i>
                   <span>رقم القضية</span>
                 </div>
               </th>
-              <th class="text-right py-4 px-6 font-bold text-sm uppercase tracking-wider" style="color: ${primaryColor};">
-                <div class="flex items-center gap-2">
-                  <i class="fas fa-calendar text-xs"></i>
+              <th style="color: ${primaryColor};">
+                <div>
+                  <i class="fas fa-calendar"></i>
                   <span>تاريخ الجلسة</span>
                 </div>
               </th>
-              <th class="text-right py-4 px-6 font-bold text-sm uppercase tracking-wider" style="color: ${primaryColor};">
-                <div class="flex items-center gap-2">
-                  <i class="fas fa-cog text-xs"></i>
+              <th style="color: ${primaryColor};">
+                <div>
+                  <i class="fas fa-cog"></i>
                   <span>الحالة</span>
                 </div>
               </th>
-              <th class="text-center py-4 px-6 font-bold text-sm uppercase tracking-wider" style="color: ${primaryColor};">
-                <div class="flex items-center justify-center gap-2">
-                  <i class="fas fa-tools text-xs"></i>
+              <th style="color: ${primaryColor};">
+                <div>
+                  <i class="fas fa-tools"></i>
                   <span>الإجراءات</span>
                 </div>
               </th>
             </tr>
           </thead>
           <tbody>
-            <tr class="table-row border-b border-gray-700 hover:shadow-md transition-all">
-              <td class="py-4 px-6">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold" style="background: ${primaryColor}30; color: ${primaryColor};">أم</div>
+            <tr class="table-row">
+              <td>
+                <div class="table-cell-user">
+                  <div class="user-avatar-small" style="background: ${primaryColor}30; color: ${primaryColor};">أم</div>
                   <div>
-                    <div class="font-semibold">أحمد محمد السعيد</div>
-                    <div class="text-xs opacity-60">ahmed@example.com</div>
+                    <div class="user-name-small">أحمد محمد السعيد</div>
+                    <div class="user-email-small">ahmed@example.com</div>
                   </div>
                 </div>
               </td>
-              <td class="py-4 px-6">
-                <span class="px-3 py-1 rounded-lg font-mono font-semibold text-sm" style="background: ${primaryColor}20; color: ${primaryColor};">2024-001</span>
+              <td>
+                <span class="case-id" style="background: ${primaryColor}20; color: ${primaryColor};">2024-001</span>
               </td>
-              <td class="py-4 px-6">
-                <div class="flex items-center gap-2">
-                  <i class="fas fa-calendar-day text-sm opacity-60"></i>
+              <td>
+                <div class="table-cell-date">
+                  <i class="fas fa-calendar-day"></i>
                   <span>2024-01-15</span>
                 </div>
               </td>
-              <td class="py-4 px-6">
-                <span class="px-3 py-1 rounded-full text-xs font-bold" style="background: ${secondaryColor}; color: white;">
-                  <i class="fas fa-check-circle ml-1"></i>نشطة
+              <td>
+                <span class="case-status" style="background: ${secondaryColor}; color: white;">
+                  <i class="fas fa-check-circle"></i>نشطة
                 </span>
               </td>
-              <td class="py-4 px-6">
-                <div class="flex items-center justify-center gap-2">
-                  <button class="w-9 h-9 rounded-lg bg-blue-600 hover:bg-blue-700 transition flex items-center justify-center shadow-md" title="عرض">
-                    <i class="fas fa-eye text-sm"></i>
+              <td>
+                <div class="table-cell-actions">
+                  <button class="action-btn" title="عرض">
+                    <i class="fas fa-eye"></i>
                   </button>
-                  <button class="w-9 h-9 rounded-lg transition flex items-center justify-center shadow-md hover:opacity-80" style="background: ${primaryColor}; color: ${bgColor};" title="تعديل">
-                    <i class="fas fa-edit text-sm"></i>
+                  <button class="action-btn" style="background: ${primaryColor}; color: ${bgColor};" title="تعديل">
+                    <i class="fas fa-edit"></i>
                   </button>
-                  <button class="w-9 h-9 rounded-lg bg-red-600 hover:bg-red-700 transition flex items-center justify-center shadow-md" title="حذف">
-                    <i class="fas fa-trash text-sm"></i>
+                  <button class="action-btn action-btn-delete" title="حذف">
+                    <i class="fas fa-trash"></i>
                   </button>
                 </div>
               </td>

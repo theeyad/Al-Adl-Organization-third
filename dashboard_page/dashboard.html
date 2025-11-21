@@ -14,6 +14,9 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Material Symbols -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+
     <!-- Favicon -->
     <link rel="shortcut icon" href="../img/logo1.png" type="image/x-icon">
 
@@ -38,23 +41,23 @@
             <p class="sidebar-subtitle">نظام الإدارة المتكامل</p>
         </div>
         <nav class="sidebar-nav">
-            <a href="#" class="nav-item active" data-page="home">
+            <a class="nav-item active" data-page="home">
                 <i class="fas fa-home"></i>
                 <span>الصفحة الرئيسية</span>
             </a>
-            <a href="#" class="nav-item" data-page="services">
+            <a class="nav-item" data-page="services">
                 <i class="fas fa-briefcase"></i>
                 <span>الخدمات</span>
             </a>
-            <a href="#" class="nav-item" data-page="posts">
+            <a class="nav-item" data-page="posts">
                 <i class="fas fa-newspaper"></i>
                 <span>المنشورات</span>
             </a>
-            <a href="#" class="nav-item" data-page="cases">
+            <a class="nav-item" data-page="cases">
                 <i class="fas fa-gavel"></i>
                 <span>جدول القضايا</span>
             </a>
-            <a href="#" class="nav-item" data-page="Administrative">
+            <a class="nav-item" data-page="Administrative">
                 <i class="fas fa-book"></i>
                 <span>الأعمال الإدارية</span>
             </a>
@@ -88,10 +91,6 @@
             </div>
             <div class="header-controls">
                 <div id="clock" class="clock"></div>
-                <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle theme"
-                    onclick="toggleTheme()">
-                    <i class="fa-solid fa-moon"></i>
-                </button>
             </div>
         </header>
 
@@ -107,10 +106,6 @@
                             <span>إضافة بطاقة</span>
                         </button>
                     </div>
-                    <div id="home-header1-cards" class="cards-grid"></div>
-                </section>
-
-                <section class="content-section">
                     <div id="service-cards-section" class="cards-grid"></div>
                 </section>
 
@@ -138,7 +133,7 @@
             </div>
 
             <!-- Services Page -->
-            <div id="services-page" class="page-content hidden">
+            <div id="services-page" class="page-content page-hidden">
                 <section class="content-section">
                     <div class="section-header">
                         <h2>الخدمات القانونية</h2>
@@ -152,7 +147,7 @@
             </div>
 
             <!-- Posts Page -->
-            <div id="posts-page" class="page-content hidden">
+            <div id="posts-page" class="page-content page-hidden">
                 <section class="content-section">
                     <div class="section-header">
                         <h2>المنشورات والأخبار</h2>
@@ -166,7 +161,7 @@
             </div>
 
             <!-- Cases Page -->
-            <div id="cases-page" class="page-content hidden">
+            <div id="cases-page" class="page-content page-hidden">
                 <section class="content-section">
                     <div class="section-header">
                         <h2>جدول القضايا</h2>
@@ -177,62 +172,148 @@
         </div>
     </main>
 
-    <!-- Add Card Modal -->
-    <div id="add-card-modal" class="modal hidden">
+    <!-- Add Card Modal - Services (ما نقوم به) -->
+    <div id="add-card-modal-services" class="modal modal-hidden">
         <div class="modal-content">
-            <h3>إضافة بطاقة جديدة</h3>
-            <form id="add-card-form" onsubmit="handleAddCard(event)">
+            <h3>إضافة عمل جديد</h3>
+            <form id="add-card-form-services" onsubmit="handleAddCard(event)">
                 <div class="form-group">
                     <label>العنوان</label>
-                    <input type="text" id="card-title" required>
+                    <input type="text" id="card-title-services" required>
                 </div>
                 <div class="form-group">
-                    <label>الوصف</label>
-                    <textarea id="card-description" required rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>الأيقونة (Font Awesome)</label>
-                    <input type="text" id="card-icon" placeholder="fa-gavel" required>
-                </div>
-                <div class="form-group">
-                    <label>القيمة (اختياري)</label>
-                    <input type="text" id="card-value" placeholder="150">
+                    <label>الأيقونة (Material Symbols)</label>
+                    <input type="text" id="card-icon-services" placeholder="business_center" required>
                 </div>
                 <div class="form-actions">
-                    <button type="submit" id="submit-card-btn" class="btn-primary">إضافة</button>
-                    <button type="button" onclick="closeAddCardModal()" class="btn-secondary">إلغاء</button>
+                    <button type="submit" id="submit-card-btn-services" class="btn-primary">إضافة</button>
+                    <button type="button" onclick="closeAddCardModal('services')" class="btn-secondary">إلغاء</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Edit Card Modal -->
-    <div id="edit-card-modal" class="modal hidden">
+    <!-- Add Card Modal - Publications (أحدث المنشورات) -->
+    <div id="add-card-modal-publications" class="modal modal-hidden">
         <div class="modal-content">
-            <h3>تعديل البطاقة</h3>
-            <form id="edit-card-form" onsubmit="handleEditCard(event)">
-                <input type="hidden" id="edit-card-id">
+            <h3>إضافة منشور جديد</h3>
+            <form id="add-card-form-publications" onsubmit="handleAddCard(event)">
                 <div class="form-group">
                     <label>العنوان</label>
-                    <input type="text" id="edit-card-title" required>
+                    <input type="text" id="card-title-publications" required>
                 </div>
                 <div class="form-group">
-                    <label>الوصف</label>
-                    <textarea id="edit-card-description" required rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>الأيقونة (Font Awesome)</label>
-                    <input type="text" id="edit-card-icon" required>
-                </div>
-                <div class="form-group">
-                    <label>القيمة (اختياري)</label>
-                    <input type="text" id="edit-card-value">
+                    <label>النص</label>
+                    <textarea id="card-excerpt-publications" required rows="3"></textarea>
                 </div>
                 <div class="form-actions">
-                    <button type="submit" id="update-card-btn" class="btn-primary">حفظ التغييرات</button>
-                    <button type="button" onclick="closeEditCardModal()" class="btn-secondary">إلغاء</button>
+                    <button type="submit" id="submit-card-btn-publications" class="btn-primary">إضافة</button>
+                    <button type="button" onclick="closeAddCardModal('publications')"
+                        class="btn-secondary">إلغاء</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Add Card Modal - Testimonials (آراء عملائنا) -->
+    <div id="add-card-modal-testimonials" class="modal modal-hidden">
+        <div class="modal-content">
+            <h3>إضافة رأي عميل</h3>
+            <form id="add-card-form-testimonials" onsubmit="handleAddCard(event)">
+                <div class="form-group">
+                    <label>الرأي/الاقتباس</label>
+                    <textarea id="card-text-testimonials" required rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>اسم العميل</label>
+                    <input type="text" id="card-name-testimonials" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" id="submit-card-btn-testimonials" class="btn-primary">إضافة</button>
+                    <button type="button" onclick="closeAddCardModal('testimonials')"
+                        class="btn-secondary">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Card Modal - Services (ما نقوم به) -->
+    <div id="edit-card-modal-services" class="modal modal-hidden">
+        <div class="modal-content">
+            <h3>تعديل الخدمة</h3>
+            <form id="edit-card-form-services" onsubmit="handleEditCard(event)">
+                <input type="hidden" id="edit-card-id-services">
+                <div class="form-group">
+                    <label>العنوان</label>
+                    <input type="text" id="edit-card-title-services" required>
+                </div>
+                <div class="form-group">
+                    <label>الأيقونة (Material Symbols)</label>
+                    <input type="text" id="edit-card-icon-services" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" id="update-card-btn-services" class="btn-primary">حفظ التغييرات</button>
+                    <button type="button" onclick="closeEditCardModal('services')" class="btn-secondary">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Card Modal - Publications (أحدث المنشورات) -->
+    <div id="edit-card-modal-publications" class="modal modal-hidden">
+        <div class="modal-content">
+            <h3>تعديل المنشور</h3>
+            <form id="edit-card-form-publications" onsubmit="handleEditCard(event)">
+                <input type="hidden" id="edit-card-id-publications">
+                <div class="form-group">
+                    <label>العنوان</label>
+                    <input type="text" id="edit-card-title-publications" required>
+                </div>
+                <div class="form-group">
+                    <label>النص</label>
+                    <textarea id="edit-card-excerpt-publications" required rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" id="update-card-btn-publications" class="btn-primary">حفظ التغييرات</button>
+                    <button type="button" onclick="closeEditCardModal('publications')"
+                        class="btn-secondary">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Card Modal - Testimonials (آراء عملائنا) -->
+    <div id="edit-card-modal-testimonials" class="modal modal-hidden">
+        <div class="modal-content">
+            <h3>تعديل الرأي</h3>
+            <form id="edit-card-form-testimonials" onsubmit="handleEditCard(event)">
+                <input type="hidden" id="edit-card-id-testimonials">
+                <div class="form-group">
+                    <label>الرأي/الاقتباس</label>
+                    <textarea id="edit-card-text-testimonials" required rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>اسم العميل</label>
+                    <input type="text" id="edit-card-name-testimonials" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" id="update-card-btn-testimonials" class="btn-primary">حفظ التغييرات</button>
+                    <button type="button" onclick="closeEditCardModal('testimonials')"
+                        class="btn-secondary">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-confirm-modal" class="modal modal-hidden">
+        <div class="modal-content">
+            <h3>تأكيد الحذف</h3>
+            <p style="font-size: 16px; margin: 20px 0; text-align: center;">هل أنت متأكد من حذف هذه البطاقة؟</p>
+            <div class="form-actions">
+                <button id="confirm-delete-btn" class="btn-primary" style="background-color: #d20808;">حذف</button>
+                <button id="cancel-delete-btn" class="btn-secondary">إلغاء</button>
+            </div>
         </div>
     </div>
 
