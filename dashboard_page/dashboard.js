@@ -5,6 +5,72 @@ function logout() {
   window.location.href = "../login_page/login.html";
 }
 
+// Export Cases to Excel
+function exportCasesToExcel() {
+  if (cases.length === 0) {
+    showToast("لا توجد قضايا لتصديرها", "info");
+    return;
+  }
+
+  // Create CSV content
+  let csvContent = "data:text/csv;charset=utf-8,";
+  csvContent += "اسم العميل,البريد الإلكتروني,رقم القضية,تاريخ الجلسة,الحالة\n";
+
+  cases.forEach((caseItem) => {
+    const row = [
+      caseItem.name,
+      caseItem.email,
+      caseItem.caseNumber,
+      caseItem.date,
+      caseItem.status,
+    ]
+      .map((field) => `"${field}"`)
+      .join(",");
+    csvContent += row + "\n";
+  });
+
+  // Create download link
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "القضايا.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  showToast("تم تصدير القضايا بنجاح", "success");
+}
+
+// Export Administrative Tasks to Excel
+function exportAdministrativeToExcel() {
+  if (administrative.length === 0) {
+    showToast("لا توجد أعمال إدارية لتصديرها", "info");
+    return;
+  }
+
+  // Create CSV content
+  let csvContent = "data:text/csv;charset=utf-8,";
+  csvContent += "اسم العمل,صاحب العمل,رقم العمل,تاريخ الموعد,الأولوية\n";
+
+  administrative.forEach((task) => {
+    const row = [task.name, task.owner, task.number, task.date, task.priority]
+      .map((field) => `"${field}"`)
+      .join(",");
+    csvContent += row + "\n";
+  });
+
+  // Create download link
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "الأعمال_الإدارية.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  showToast("تم تصدير الأعمال الإدارية بنجاح", "success");
+}
+
 const defaultConfig = {
   firm_name: "مكتب المحاماة",
   add_case_button: "+ إضافة قضية جديدة",
@@ -1094,18 +1160,20 @@ function renderCasesTable() {
             <i class="fas fa-plus"></i>
             <span>إضافة قضية جديدة</span>
           </button>
-          <button class="btn-secondary">
+          <button class="btn-secondary" onclick="exportCasesToExcel()">
             <i class="fas fa-file-excel"></i>
             <span>تصدير Excel</span>
           </button>
         </div>
         <div class="cases-table-search">
-          <input type="text" placeholder="بحث في القضايا..." 
-                 class="search-input case-search-input" 
-                 id="case-search-input"
-                 value="${caseFilter.searchTerm}"
-                 style="border: 1px solid ${primaryColor}40;" />
-          <label for="case-search-input"><i class="fas fa-search"></i></label>
+        <div class="search-bar-container" >
+            <input type="text" placeholder="بحث في القضايا..." 
+                  class="search-input case-search-input" 
+                  id="case-search-input"
+                  value="${caseFilter.searchTerm}"
+                  style="border: 1px solid ${primaryColor}40;" />
+            <label for="case-search-input"><i class="fas fa-search"></i></label>
+          </div>
           <button class="filter-btn" title="الفلاتر">
             <i class="fas fa-filter"></i>
           </button>
@@ -1483,18 +1551,20 @@ function renderAdministrativeTable() {
             <i class="fas fa-plus"></i>
             <span>إضافة عمل جديد</span>
           </button>
-          <button class="btn-secondary">
+          <button class="btn-secondary" onclick="exportAdministrativeToExcel()">
             <i class="fas fa-file-excel"></i>
             <span>تصدير Excel</span>
           </button>
         </div>
         <div class="cases-table-search">
-          <input type="text" placeholder="بحث في الأعمال الإدارية..." 
-                 class="search-input administrative-search-input" 
-                 id="administrative-search-input"
-                 value="${administrativeFilter.searchTerm}"
-                 style="border: 1px solid ${primaryColor}40;" />
-          <label for="administrative-search-input"><i class="fas fa-search"></i></label>
+          <div class="search-bar-container">
+            <input type="text" placeholder="بحث في الأعمال الإدارية..." 
+                  class="search-input administrative-search-input" 
+                  id="administrative-search-input"
+                  value="${administrativeFilter.searchTerm}"
+                  style="border: 1px solid ${primaryColor}40;" />
+            <label for="administrative-search-input"><i class="fas fa-search"></i></label>
+          </div>
           <button class="filter-btn" title="الفلاتر">
             <i class="fas fa-filter"></i>
           </button>

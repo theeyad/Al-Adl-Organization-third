@@ -882,6 +882,7 @@ body {
 
 .cases-table-search .search-input {
   width: 100%;
+  margin-right: auto;
   padding: 8px 12px;
   background-color: #111827;
   border: 1px solid #374151;
@@ -897,9 +898,19 @@ body {
   box-shadow: 0 0 10px rgba(243, 198, 35, 0.2);
 }
 
+.search-bar-container {
+  position: relative;
+  flex: 1;
+  max-width: 70%;
+  margin-right: auto;
+}
+
 .cases-table-search label {
   position: absolute;
   right: -30px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
 }
 
 .cases-table-search label i {
