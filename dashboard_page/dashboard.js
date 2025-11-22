@@ -19,6 +19,8 @@ const defaultConfig = {
 };
 
 let allCards = [];
+let publications = [];
+let cases = [];
 let currentPage = "home";
 let currentModalPage = "";
 let currentModalSection = "";
@@ -78,6 +80,276 @@ function showAddCardModal(page, section) {
   const form = document.getElementById(formId);
   if (form) form.reset();
 }
+
+// Show Service Modal
+function showAddServiceModal() {
+  document.getElementById("add-service-modal").classList.remove("modal-hidden");
+  document.getElementById("add-service-form").reset();
+}
+
+// Show Sub-Service Modal
+function showAddSubServiceModal(serviceId, serviceTitle) {
+  document
+    .getElementById("add-subservice-modal")
+    .classList.remove("modal-hidden");
+  document.getElementById("parent-service-id").value = serviceId;
+  document.getElementById("add-subservice-form").reset();
+  // Update the modal title to show which service we're adding to
+  document.querySelector(
+    "#add-subservice-modal h3"
+  ).textContent = `إضافة خدمة فرعية لـ ${serviceTitle}`;
+}
+
+// Close any modal
+function closeModal(modalId) {
+  document.getElementById(modalId).classList.add("modal-hidden");
+}
+
+// Handle Add Service Form Submission
+async function handleAddService(event) {
+  event.preventDefault();
+
+  const serviceData = {
+    title: document.getElementById("service-title").value,
+    icon: document.getElementById("service-icon").value,
+    description: document.getElementById("service-description").value,
+    subServices: [], // Initialize empty array for sub-services
+  };
+
+  try {
+    // Save the service to the database
+    const result = await window.dataSdk.create(serviceData);
+
+    if (result && result.isOk) {
+      showToast("تمت إضافة الخدمة بنجاح", "success");
+      closeModal("add-service-modal");
+      // Refresh the services list
+      renderServices();
+    } else {
+      throw new Error("Failed to save service");
+    }
+  } catch (error) {
+    console.error("Error adding service:", error);
+    showToast("حدث خطأ أثناء إضافة الخدمة", "error");
+  }
+}
+
+// Handle Add Sub-Service Form Submission
+async function handleAddSubService(event) {
+  event.preventDefault();
+
+  const subServiceData = {
+    title: document.getElementById("subservice-title").value,
+    description: document.getElementById("subservice-description").value,
+    parentServiceId: document.getElementById("parent-service-id").value,
+  };
+
+  try {
+    // Get the parent service
+    const parentServiceId = subServiceData.parentServiceId;
+    const parentService = await window.dataSdk.get(parentServiceId);
+
+    if (!parentService) {
+      throw new Error("Parent service not found");
+    }
+
+    // Add the sub-service to the parent's subServices array
+    if (!parentService.subServices) {
+      parentService.subServices = [];
+    }
+
+    parentService.subServices.push({
+      title: subServiceData.title,
+      description: subServiceData.description,
+    });
+
+    // Update the parent service with the new sub-service
+    const result = await window.dataSdk.update(parentServiceId, parentService);
+
+    if (result && result.isOk) {
+      showToast("تمت إضافة الخدمة الفرعية بنجاح", "success");
+      closeModal("add-subservice-modal");
+      // Refresh the services list
+      renderServices();
+    } else {
+      throw new Error("Failed to save sub-service");
+    }
+  } catch (error) {
+    console.error("Error adding sub-service:", error);
+    showToast("حدث خطأ أثناء إضافة الخدمة الفرعية", "error");
+  }
+}
+
+// Render Services
+async function renderServices() {
+  const container = document.getElementById("services-cards");
+  if (!container) return;
+
+  try {
+    // Fetch all services
+    const services = await window.dataSdk.getAll(); // Adjust based on your SDK
+
+    container.innerHTML = services
+      .map(
+        (service) => `
+            <div class="service-card" data-service-id="${service.__backendId}">
+                <div class="service-card-header">
+                    <span class="material-symbols-outlined service-icon">${
+                      service.icon
+                    }</span>
+                    <h3 class="service-title">${service.title}</h3>
+                </div>
+                <p class="service-description">${service.description}</p>
+                
+                <div class="service-actions">
+                    <button class="btn-secondary" onclick="showAddSubServiceModal('${
+                      service.__backendId
+                    }', '${service.title}')">
+                        <i class="fas fa-plus"></i> إضافة خدمة فرعية
+                    </button>
+                </div>
+                
+                ${
+                  service.subServices && service.subServices.length > 0
+                    ? `
+                    <div class="sub-services">
+                        <h4>الخدمات الفرعية:</h4>
+                        <ul>
+                            ${service.subServices
+                              .map(
+                                (sub) => `
+                                <li class="sub-service-item">
+                                    <strong>${sub.title}</strong>
+                                    <p>${sub.description}</p>
+                                </li>
+                            `
+                              )
+                              .join("")}
+                        </ul>
+                    </div>
+                `
+                    : ""
+                }
+            </div>
+        `
+      )
+      .join("");
+  } catch (error) {
+    console.error("Error loading services:", error);
+    showToast("حدث خطأ أثناء تحميل الخدمات", "error");
+  }
+}
+
+// Add click-outside functionality for modals
+document.addEventListener("DOMContentLoaded", () => {
+  // For add service modal
+  const addServiceModal = document.getElementById("add-service-modal");
+  if (addServiceModal) {
+    addServiceModal.addEventListener("click", (e) => {
+      if (e.target === addServiceModal) {
+        closeModal("add-service-modal");
+      }
+    });
+  }
+
+  // For add sub-service modal
+  const addSubServiceModal = document.getElementById("add-subservice-modal");
+  if (addSubServiceModal) {
+    addSubServiceModal.addEventListener("click", (e) => {
+      if (e.target === addSubServiceModal) {
+        closeModal("add-subservice-modal");
+      }
+    });
+  }
+
+  // Call renderServices when the services page loads
+  document
+    .querySelector('.nav-item[data-page="services"]')
+    ?.addEventListener("click", renderServices);
+});
+
+function showAddCardModal(page, section) {
+  currentModalPage = page;
+  currentModalSection = section;
+
+  // If we're in the services page, show the add service modal
+  if (page === "services") {
+    showAddServiceModal();
+    return;
+  }
+
+  // Existing code for other modals
+  let modalId = "add-card-modal-services"; // default
+  if (section === "header2") {
+    modalId = "add-card-modal-publications";
+  } else if (section === "header3") {
+    modalId = "add-card-modal-testimonials";
+  }
+
+  document.getElementById(modalId).classList.remove("modal-hidden");
+
+  // Reset the appropriate form
+  const formId = modalId.replace("modal", "form");
+  const form = document.getElementById(formId);
+  if (form) form.reset();
+}
+
+// Show toast notification
+function showToast(message, type = "info") {
+  // Create toast element if it doesn't exist
+  let toast = document.getElementById("toast-notification");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "toast-notification";
+    document.body.appendChild(toast);
+  }
+
+  // Set toast content and style
+  toast.textContent = message;
+  toast.className = `toast toast-${type} toast-show`;
+
+  // Hide toast after 3 seconds
+  setTimeout(() => {
+    toast.classList.remove("toast-show");
+  }, 3000);
+}
+
+// Add toast styles to the head
+const toastStyles = document.createElement("style");
+toastStyles.textContent = `
+    .toast {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 12px 24px;
+        border-radius: 4px;
+        color: white;
+        font-weight: 500;
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+        min-width: 250px;
+        text-align: center;
+    }
+    
+    .toast-show {
+        opacity: 1;
+    }
+    
+    .toast-success {
+        background-color: #10B981;
+    }
+    
+    .toast-error {
+        background-color: #EF4444;
+    }
+    
+    .toast-info {
+        background-color: #3B82F6;
+    }
+`;
+document.head.appendChild(toastStyles);
 
 function closeAddCardModal(type = "services") {
   const modalId = `add-card-modal-${type}`;
@@ -390,6 +662,206 @@ function renderServiceCards() {
   });
 }
 
+// Show Add Publication Modal
+function showAddPublicationModal() {
+  document
+    .getElementById("add-publication-modal")
+    .classList.remove("modal-hidden");
+  document.getElementById("add-publication-form").reset();
+}
+
+// Handle Add Publication Form Submission
+async function handleAddPublication(event) {
+  event.preventDefault();
+
+  const publicationData = {
+    icon: document.getElementById("publication-icon").value,
+    title: document.getElementById("publication-title").value,
+    description: document.getElementById("publication-description").value,
+  };
+
+  try {
+    const result = await window.dataSdk.create(publicationData);
+    if (result.isOk) {
+      showToast("تم إضافة المنشور بنجاح", "success");
+      closeModal("add-publication-modal");
+      renderPublications();
+    } else {
+      showToast("خطأ في إضافة المنشور", "error");
+    }
+  } catch (error) {
+    showToast("حدث خطأ: " + error.message, "error");
+  }
+}
+
+// Handle Edit Publication Form Submission
+async function handleEditPublication(event) {
+  event.preventDefault();
+
+  const publicationId = document.getElementById("edit-publication-id").value;
+
+  const publicationData = {
+    icon: document.getElementById("edit-publication-icon").value,
+    title: document.getElementById("edit-publication-title").value,
+    description: document.getElementById("edit-publication-description").value,
+  };
+
+  try {
+    const result = await window.dataSdk.update(publicationData);
+    if (result.isOk) {
+      showToast("تم تحديث المنشور بنجاح", "success");
+      closeModal("edit-publication-modal");
+      renderPublications();
+    } else {
+      showToast("خطأ في تحديث المنشور", "error");
+    }
+  } catch (error) {
+    showToast("حدث خطأ: " + error.message, "error");
+  }
+}
+
+// Render Publications
+function renderPublications() {
+  const container = document.getElementById("publications-cards");
+  if (!container) return;
+
+  container.innerHTML = publications
+    .map(
+      (pub) => `
+    <div class="card" data-publication-id="${pub.id}">
+      <div class="card-actions">
+        <button class="card-action-btn edit-pub-btn" style="background: #756a41;" title="تعديل">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="card-action-btn card-action-delete delete-pub-btn" title="حذف">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+      <div class="publication-icon">
+        <span class="material-symbols-outlined">${pub.icon}</span>
+      </div>
+      <h3>${pub.title}</h3>
+      <p>${pub.description}</p>
+      <button class="btn-primary read-more-pub-btn" style="margin-top: 1rem; width: 100%;">
+        <i class="fas fa-arrow-left"></i>
+        <span>اعرف المزيد</span>
+      </button>
+    </div>
+  `
+    )
+    .join("");
+
+  // Add event listeners
+  container.querySelectorAll(".read-more-pub-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const card = btn.closest(".card");
+      const pubId = card.dataset.publicationId;
+      const pub = publications.find((p) => p.id === pubId);
+      if (pub) {
+        showPublicationDetail(pub);
+      }
+    });
+  });
+
+  container.querySelectorAll(".edit-pub-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const card = btn.closest(".card");
+      const pubId = card.dataset.publicationId;
+      const pub = publications.find((p) => p.id === pubId);
+      if (pub) {
+        showEditPublicationModal(pub);
+      }
+    });
+  });
+
+  container.querySelectorAll(".delete-pub-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const card = btn.closest(".card");
+      const pubId = card.dataset.publicationId;
+      const pub = publications.find((p) => p.id === pubId);
+      if (pub) {
+        deletePublication(pub, btn);
+      }
+    });
+  });
+}
+
+// Show Publication Detail Modal
+function showPublicationDetail(publication) {
+  document.getElementById("view-publication-title").textContent =
+    publication.title;
+  document.getElementById("view-publication-content").innerHTML =
+    publication.description;
+  document
+    .getElementById("view-publication-modal")
+    .classList.remove("modal-hidden");
+
+  // Setup edit button in modal
+  document.getElementById("edit-publication-btn").onclick = () => {
+    closeModal("view-publication-modal");
+    showEditPublicationModal(publication);
+  };
+}
+
+// Show Edit Publication Modal
+function showEditPublicationModal(publication) {
+  document.getElementById("edit-publication-id").value = publication.id;
+  document.getElementById("edit-publication-icon").value = publication.icon;
+  document.getElementById("edit-publication-title").value = publication.title;
+  document.getElementById("edit-publication-description").value =
+    publication.description;
+  document
+    .getElementById("edit-publication-modal")
+    .classList.remove("modal-hidden");
+}
+
+// Delete Publication
+function deletePublication(publication, deleteBtn) {
+  if (confirm("هل أنت متأكد من حذف هذا المنشور؟")) {
+    // Remove from publications array
+    publications = publications.filter((p) => p.id !== publication.id);
+    showToast("تم حذف المنشور", "success");
+    renderPublications();
+  }
+}
+
+// Setup click-outside for publication modals
+document.addEventListener("DOMContentLoaded", () => {
+  const addPubModal = document.getElementById("add-publication-modal");
+  if (addPubModal) {
+    addPubModal.addEventListener("click", (e) => {
+      if (e.target === addPubModal) {
+        closeModal("add-publication-modal");
+      }
+    });
+  }
+
+  const editPubModal = document.getElementById("edit-publication-modal");
+  if (editPubModal) {
+    editPubModal.addEventListener("click", (e) => {
+      if (e.target === editPubModal) {
+        closeModal("edit-publication-modal");
+      }
+    });
+  }
+
+  const viewPubModal = document.getElementById("view-publication-modal");
+  if (viewPubModal) {
+    viewPubModal.addEventListener("click", (e) => {
+      if (e.target === viewPubModal) {
+        closeModal("view-publication-modal");
+      }
+    });
+  }
+
+  document
+    .querySelector('.nav-item[data-page="posts"]')
+    ?.addEventListener("click", renderPublications);
+});
+
 // Render Cases Table
 function renderCasesTable() {
   const container = document.getElementById("cases-table-container");
@@ -404,6 +876,87 @@ function renderCasesTable() {
   const secondaryColor =
     config.secondary_action_color || defaultConfig.secondary_action_color;
 
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case "نشطة":
+        return `background: ${secondaryColor}; color: white;`;
+      case "معلقة":
+        return "background: #f59e0b; color: white;";
+      case "مغلقة":
+        return "background: #6b7280; color: white;";
+      default:
+        return `background: ${secondaryColor}; color: white;`;
+    }
+  };
+
+  const casesRows =
+    cases.length > 0
+      ? cases
+          .map((caseItem) => {
+            const avatarLetters = caseItem.name
+              .split(" ")
+              .slice(0, 2)
+              .map((n) => n[0])
+              .join("");
+            return `
+      <tr class="table-row" data-case-id="${caseItem.id}">
+        <td>
+          <div class="table-cell-user">
+            <div class="user-avatar-small" style="background: ${primaryColor}30; color: ${primaryColor};">${avatarLetters}</div>
+            <div>
+              <div class="user-name-small">${caseItem.name}</div>
+              <div class="user-email-small">${caseItem.email}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <span class="case-id" style="background: ${primaryColor}20; color: ${primaryColor};">${
+              caseItem.caseNumber
+            }</span>
+        </td>
+        <td>
+          <div class="table-cell-date">
+            <i class="fas fa-calendar-day"></i>
+            <span>${caseItem.date}</span>
+          </div>
+        </td>
+        <td>
+          <span class="case-status" style="${getStatusStyle(caseItem.status)}">
+            <i class="fas fa-check-circle"></i>${caseItem.status}
+          </span>
+        </td>
+        <td>
+          <div class="table-cell-actions">
+            <button class="action-btn view-case-btn" title="عرض" data-case-id="${
+              caseItem.id
+            }">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="action-btn edit-case-btn" style="background: ${primaryColor}; color: ${bgColor};" title="تعديل" data-case-id="${
+              caseItem.id
+            }">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn action-btn-delete delete-case-btn" title="حذف" data-case-id="${
+              caseItem.id
+            }">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+          })
+          .join("")
+      : `
+    <tr>
+      <td colspan="5" style="text-align: center; padding: 40px; color: #9ca3af;">
+        <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+        لا توجد قضايا حالياً
+      </td>
+    </tr>
+  `;
+
   container.innerHTML = `
     <div class="cases-table-wrapper" style="background-color: ${surfaceColor}; color: ${textColor};">
       <div class="cases-table-header" style="background: linear-gradient(135deg, ${surfaceColor} 0%, ${bgColor} 100%);">
@@ -413,14 +966,14 @@ function renderCasesTable() {
           </div>
           <div>
             <h3 style="color: ${primaryColor};">جدول القضايا</h3>
-            <p>إدارة ومتابعة جميع القضايا</p>
+            <p>إدارة ومتابعة جميع القضايا (${cases.length})</p>
           </div>
         </div>
       </div>
       
       <div class="cases-table-controls">
         <div class="cases-table-buttons">
-          <button class="btn-primary" style="background: ${primaryColor}; color: ${bgColor};">
+          <button class="btn-primary add-case-btn" style="background: ${primaryColor}; color: ${bgColor};">
             <i class="fas fa-plus"></i>
             <span>إضافة قضية جديدة</span>
           </button>
@@ -431,9 +984,10 @@ function renderCasesTable() {
         </div>
         <div class="cases-table-search">
           <input type="text" placeholder="بحث في القضايا..." 
-                 class="search-input" 
-                 style="border: 1px solid ${primaryColor}40;">
-          <i class="fas fa-search"></i>
+                 class="search-input case-search-input" 
+                 id="case-search-input"
+                 style="border: 1px solid ${primaryColor}40;" />
+          <label for="case-search-input"><i class="fas fa-search"></i></label>
           <button class="filter-btn">
             <i class="fas fa-filter"></i>
           </button>
@@ -477,49 +1031,135 @@ function renderCasesTable() {
             </tr>
           </thead>
           <tbody>
-            <tr class="table-row">
-              <td>
-                <div class="table-cell-user">
-                  <div class="user-avatar-small" style="background: ${primaryColor}30; color: ${primaryColor};">أم</div>
-                  <div>
-                    <div class="user-name-small">أحمد محمد السعيد</div>
-                    <div class="user-email-small">ahmed@example.com</div>
-                  </div>
-                </div>
-              </td>
-              <td>
-                <span class="case-id" style="background: ${primaryColor}20; color: ${primaryColor};">2024-001</span>
-              </td>
-              <td>
-                <div class="table-cell-date">
-                  <i class="fas fa-calendar-day"></i>
-                  <span>2024-01-15</span>
-                </div>
-              </td>
-              <td>
-                <span class="case-status" style="background: ${secondaryColor}; color: white;">
-                  <i class="fas fa-check-circle"></i>نشطة
-                </span>
-              </td>
-              <td>
-                <div class="table-cell-actions">
-                  <button class="action-btn" title="عرض">
-                    <i class="fas fa-eye"></i>
-                  </button>
-                  <button class="action-btn" style="background: ${primaryColor}; color: ${bgColor};" title="تعديل">
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button class="action-btn action-btn-delete" title="حذف">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
+            ${casesRows}
           </tbody>
         </table>
       </div>
     </div>
   `;
+
+  // Attach event listeners
+  const addCaseBtn = container.querySelector(".add-case-btn");
+  if (addCaseBtn) {
+    addCaseBtn.addEventListener("click", showAddCaseModal);
+  }
+
+  // View case buttons
+  container.querySelectorAll(".view-case-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const caseId = btn.dataset.caseId;
+      const caseItem = cases.find((c) => c.id === caseId);
+      if (caseItem) {
+        showCaseDetailModal(caseItem);
+      }
+    });
+  });
+
+  // Edit case buttons
+  container.querySelectorAll(".edit-case-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const caseId = btn.dataset.caseId;
+      const caseItem = cases.find((c) => c.id === caseId);
+      if (caseItem) {
+        showEditCaseModal(caseItem);
+      }
+    });
+  });
+
+  // Delete case buttons
+  container.querySelectorAll(".delete-case-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const caseId = btn.dataset.caseId;
+      const caseItem = cases.find((c) => c.id === caseId);
+      if (caseItem) {
+        deleteCase(caseItem);
+      }
+    });
+  });
+}
+
+// Show Add Case Modal
+function showAddCaseModal() {
+  document.getElementById("add-case-modal").classList.remove("modal-hidden");
+  document.getElementById("add-case-form").reset();
+}
+
+// Handle Add Case Form Submission
+async function handleAddCase(event) {
+  event.preventDefault();
+
+  const newCase = {
+    id: Date.now().toString(),
+    name: document.getElementById("case-name").value,
+    email: document.getElementById("case-email").value,
+    caseNumber: document.getElementById("case-number").value,
+    date: document.getElementById("case-date").value,
+    status: document.getElementById("case-status").value,
+  };
+
+  cases.push(newCase);
+  showToast("تمت إضافة القضية بنجاح", "success");
+  closeModal("add-case-modal");
+  renderCasesTable();
+}
+
+// Show Case Detail Modal
+function showCaseDetailModal(caseItem) {
+  document.getElementById("detail-case-name").textContent = caseItem.name;
+  document.getElementById("detail-case-email").textContent = caseItem.email;
+  document.getElementById("detail-case-number").textContent =
+    caseItem.caseNumber;
+  document.getElementById("detail-case-date").textContent = caseItem.date;
+  document.getElementById("detail-case-status").textContent = caseItem.status;
+  document.getElementById("view-case-modal").classList.remove("modal-hidden");
+
+  document.getElementById("edit-case-from-detail-btn").onclick = () => {
+    closeModal("view-case-modal");
+    showEditCaseModal(caseItem);
+  };
+}
+
+// Show Edit Case Modal
+function showEditCaseModal(caseItem) {
+  document.getElementById("edit-case-id").value = caseItem.id;
+  document.getElementById("edit-case-name").value = caseItem.name;
+  document.getElementById("edit-case-email").value = caseItem.email;
+  document.getElementById("edit-case-number").value = caseItem.caseNumber;
+  document.getElementById("edit-case-date").value = caseItem.date;
+  document.getElementById("edit-case-status").value = caseItem.status;
+  document.getElementById("edit-case-modal").classList.remove("modal-hidden");
+}
+
+// Handle Edit Case Form Submission
+async function handleEditCase(event) {
+  event.preventDefault();
+
+  const caseId = document.getElementById("edit-case-id").value;
+  const caseIndex = cases.findIndex((c) => c.id === caseId);
+
+  if (caseIndex !== -1) {
+    cases[caseIndex] = {
+      id: caseId,
+      name: document.getElementById("edit-case-name").value,
+      email: document.getElementById("edit-case-email").value,
+      caseNumber: document.getElementById("edit-case-number").value,
+      date: document.getElementById("edit-case-date").value,
+      status: document.getElementById("edit-case-status").value,
+    };
+
+    showToast("تم تحديث القضية بنجاح", "success");
+    closeModal("edit-case-modal");
+    renderCasesTable();
+  }
+}
+
+// Delete Case
+function deleteCase(caseItem) {
+  if (confirm(`هل أنت متأكد من حذف قضية ${caseItem.name}؟`)) {
+    cases = cases.filter((c) => c.id !== caseItem.id);
+    showToast("تم حذف القضية بنجاح", "success");
+    renderCasesTable();
+  }
 }
 
 // Render Cards
@@ -529,7 +1169,7 @@ function renderCards() {
     "home-header2": document.getElementById("home-header2-cards"),
     "home-header3": document.getElementById("home-header3-cards"),
     services: document.getElementById("services-cards"),
-    posts: document.getElementById("posts-cards"),
+    publications: document.getElementById("publications-cards"),
   };
 
   Object.values(containers).forEach((container) => {
@@ -575,7 +1215,36 @@ document.addEventListener("DOMContentLoaded", () => {
   root.style.setProperty("--color-icons", "#ffffff");
   root.style.setProperty("--shadows", "0px 0px 15px 1px #f3c623");
 
+  // Setup case modal click-outside listeners
+  const addCaseModal = document.getElementById("add-case-modal");
+  if (addCaseModal) {
+    addCaseModal.addEventListener("click", (e) => {
+      if (e.target === addCaseModal) {
+        closeModal("add-case-modal");
+      }
+    });
+  }
+
+  const editCaseModal = document.getElementById("edit-case-modal");
+  if (editCaseModal) {
+    editCaseModal.addEventListener("click", (e) => {
+      if (e.target === editCaseModal) {
+        closeModal("edit-case-modal");
+      }
+    });
+  }
+
+  const viewCaseModal = document.getElementById("view-case-modal");
+  if (viewCaseModal) {
+    viewCaseModal.addEventListener("click", (e) => {
+      if (e.target === viewCaseModal) {
+        closeModal("view-case-modal");
+      }
+    });
+  }
+
   renderServiceCards();
+  renderPublications();
   renderCasesTable();
   renderCards();
 });

@@ -137,7 +137,7 @@
                 <section class="content-section">
                     <div class="section-header">
                         <h2>الخدمات القانونية</h2>
-                        <button class="btn-primary" onclick="showAddCardModal('services', 'main')">
+                        <button class="btn-primary" onclick="showAddServiceModal()">
                             <i class="fas fa-plus"></i>
                             <span>إضافة خدمة جديدة</span>
                         </button>
@@ -146,17 +146,66 @@
                 </section>
             </div>
 
+            <!-- Add Service Modal -->
+            <div id="add-service-modal" class="modal modal-hidden">
+                <div class="modal-content">
+                    <h3>إضافة خدمة جديدة</h3>
+                    <form id="add-service-form" onsubmit="handleAddService(event)">
+                        <div class="form-group">
+                            <label>عنوان الخدمة</label>
+                            <input type="text" id="service-title" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الأيقونة (Material Symbols)</label>
+                            <input type="text" id="service-icon" placeholder="business_center" required>
+                        </div>
+                        <div class="form-group">
+                            <label>وصف الخدمة</label>
+                            <textarea id="service-description" rows="3" required></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">إضافة الخدمة</button>
+                            <button type="button" onclick="closeModal('add-service-modal')"
+                                class="btn-secondary">إلغاء</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Add Sub-Service Modal -->
+            <div id="add-subservice-modal" class="modal modal-hidden">
+                <div class="modal-content">
+                    <h3>إضافة خدمة فرعية جديدة</h3>
+                    <form id="add-subservice-form" onsubmit="handleAddSubService(event)">
+                        <input type="hidden" id="parent-service-id">
+                        <div class="form-group">
+                            <label>عنوان الخدمة الفرعية</label>
+                            <input type="text" id="subservice-title" required>
+                        </div>
+                        <div class="form-group">
+                            <label>وصف الخدمة الفرعية</label>
+                            <textarea id="subservice-description" rows="3" required></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">إضافة الخدمة الفرعية</button>
+                            <button type="button" onclick="closeModal('add-subservice-modal')"
+                                class="btn-secondary">إلغاء</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <!-- Posts Page -->
             <div id="posts-page" class="page-content page-hidden">
                 <section class="content-section">
                     <div class="section-header">
                         <h2>المنشورات والأخبار</h2>
-                        <button class="btn-primary" onclick="showAddCardModal('posts', 'main')">
+                        <button class="btn-primary" onclick="showAddPublicationModal()">
                             <i class="fas fa-plus"></i>
                             <span>إضافة منشور جديد</span>
                         </button>
                     </div>
-                    <div id="posts-cards" class="cards-grid"></div>
+                    <div id="publications-cards" class="cards-grid"></div>
                 </section>
             </div>
 
@@ -171,6 +220,76 @@
             </div>
         </div>
     </main>
+
+    <!-- Add Publication Modal -->
+    <div id="add-publication-modal" class="modal modal-hidden">
+        <div class="modal-content">
+            <h3>إضافة منشور جديد</h3>
+            <form id="add-publication-form" onsubmit="handleAddPublication(event)">
+                <div class="form-group">
+                    <label>الأيقونة (Material Symbols)</label>
+                    <input type="text" id="publication-icon" placeholder="lightbulb" required>
+                </div>
+                <div class="form-group">
+                    <label>العنوان</label>
+                    <input type="text" id="publication-title" required>
+                </div>
+                <div class="form-group">
+                    <label>الوصف</label>
+                    <textarea id="publication-description" rows="3" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">إضافة المنشور</button>
+                    <button type="button" onclick="closeModal('add-publication-modal')"
+                        class="btn-secondary">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Publication Detail Modal -->
+    <div id="view-publication-modal" class="modal modal-hidden">
+        <div class="modal-content" style="max-width: 700px; max-height: 80vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 id="view-publication-title" style="margin: 0;"></h3>
+                <button type="button" onclick="closeModal('view-publication-modal')"
+                    style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer;">&times;</button>
+            </div>
+            <div id="view-publication-content" style="line-height: 1.6; color: #d1d5db;"></div>
+            <div class="form-actions" style="margin-top: 20px;">
+                <button type="button" id="edit-publication-btn" class="btn-primary">تعديل</button>
+                <button type="button" onclick="closeModal('view-publication-modal')"
+                    class="btn-secondary">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Publication Modal -->
+    <div id="edit-publication-modal" class="modal modal-hidden">
+        <div class="modal-content">
+            <h3>تعديل المنشور</h3>
+            <form id="edit-publication-form" onsubmit="handleEditPublication(event)">
+                <input type="hidden" id="edit-publication-id">
+                <div class="form-group">
+                    <label>الأيقونة (Material Symbols)</label>
+                    <input type="text" id="edit-publication-icon" required>
+                </div>
+                <div class="form-group">
+                    <label>العنوان</label>
+                    <input type="text" id="edit-publication-title" required>
+                </div>
+                <div class="form-group">
+                    <label>الوصف</label>
+                    <textarea id="edit-publication-description" rows="3" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">حفظ التغييرات</button>
+                    <button type="button" onclick="closeModal('edit-publication-modal')"
+                        class="btn-secondary">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Add Card Modal - Services (ما نقوم به) -->
     <div id="add-card-modal-services" class="modal modal-hidden">
@@ -314,6 +433,120 @@
                 <button id="confirm-delete-btn" class="btn-primary" style="background-color: #d20808;">حذف</button>
                 <button id="cancel-delete-btn" class="btn-secondary">إلغاء</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Add Case Modal -->
+    <div id="add-case-modal" class="modal modal-hidden">
+        <div class="modal-content">
+            <h3>إضافة قضية جديدة</h3>
+            <form id="add-case-form" onsubmit="handleAddCase(event)">
+                <div class="form-group">
+                    <label>اسم العميل</label>
+                    <input type="text" id="case-name" required>
+                </div>
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" id="case-email" required>
+                </div>
+                <div class="form-group">
+                    <label>رقم القضية</label>
+                    <input type="text" id="case-number" required>
+                </div>
+                <div class="form-group">
+                    <label>تاريخ الجلسة</label>
+                    <input type="date" id="case-date" required>
+                </div>
+                <div class="form-group">
+                    <label>الحالة</label>
+                    <select id="case-status" required
+                        style="width: 100%; padding: 10px 12px; background-color: #111827; border: 1px solid #374151; color: #ffffff; border-radius: 8px; font-size: 14px;">
+                        <option value="نشطة">نشطة</option>
+                        <option value="معلقة">معلقة</option>
+                        <option value="مغلقة">مغلقة</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">إضافة القضية</button>
+                    <button type="button" onclick="closeModal('add-case-modal')" class="btn-secondary">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Case Detail Modal -->
+    <div id="view-case-modal" class="modal modal-hidden">
+        <div class="modal-content" style="max-width: 600px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: #f3c623;">تفاصيل القضية</h3>
+                <button type="button" onclick="closeModal('view-case-modal')"
+                    style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer;">&times;</button>
+            </div>
+            <div style="line-height: 1.8; color: #d1d5db;">
+                <div style="margin-bottom: 20px;">
+                    <label style="color: #f3c623; font-weight: 600;">اسم العميل:</label>
+                    <p id="detail-case-name" style="margin: 5px 0 0 0;"></p>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="color: #f3c623; font-weight: 600;">البريد الإلكتروني:</label>
+                    <p id="detail-case-email" style="margin: 5px 0 0 0;"></p>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="color: #f3c623; font-weight: 600;">رقم القضية:</label>
+                    <p id="detail-case-number" style="margin: 5px 0 0 0;"></p>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="color: #f3c623; font-weight: 600;">تاريخ الجلسة:</label>
+                    <p id="detail-case-date" style="margin: 5px 0 0 0;"></p>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="color: #f3c623; font-weight: 600;">الحالة:</label>
+                    <p id="detail-case-status" style="margin: 5px 0 0 0;"></p>
+                </div>
+            </div>
+            <div class="form-actions" style="margin-top: 20px;">
+                <button type="button" id="edit-case-from-detail-btn" class="btn-primary">تعديل</button>
+                <button type="button" onclick="closeModal('view-case-modal')" class="btn-secondary">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Case Modal -->
+    <div id="edit-case-modal" class="modal modal-hidden">
+        <div class="modal-content">
+            <h3>تعديل القضية</h3>
+            <form id="edit-case-form" onsubmit="handleEditCase(event)">
+                <input type="hidden" id="edit-case-id">
+                <div class="form-group">
+                    <label>اسم العميل</label>
+                    <input type="text" id="edit-case-name" required>
+                </div>
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" id="edit-case-email" required>
+                </div>
+                <div class="form-group">
+                    <label>رقم القضية</label>
+                    <input type="text" id="edit-case-number" required>
+                </div>
+                <div class="form-group">
+                    <label>تاريخ الجلسة</label>
+                    <input type="date" id="edit-case-date" required>
+                </div>
+                <div class="form-group">
+                    <label>الحالة</label>
+                    <select id="edit-case-status" required
+                        style="width: 100%; padding: 10px 12px; background-color: #111827; border: 1px solid #374151; color: #ffffff; border-radius: 8px; font-size: 14px;">
+                        <option value="نشطة">نشطة</option>
+                        <option value="معلقة">معلقة</option>
+                        <option value="مغلقة">مغلقة</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">حفظ التغييرات</button>
+                    <button type="button" onclick="closeModal('edit-case-modal')" class="btn-secondary">إلغاء</button>
+                </div>
+            </form>
         </div>
     </div>
 
