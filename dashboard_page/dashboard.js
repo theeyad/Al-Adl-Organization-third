@@ -49,6 +49,58 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 1000);
 
+// Sidebar Toggle Functionality
+function setupSidebarToggle() {
+  const sidebarToggle = document.getElementById("sidebar-toggle");
+  const sidebar = document.querySelector(".sidebar");
+  const toggle = document.querySelector(".toggle");
+
+  if (sidebarToggle && sidebar && toggle) {
+    sidebarToggle.addEventListener("click", () => {
+      sidebar.classList.toggle("active");
+      toggle.classList.toggle("active");
+      document.body.classList.toggle("sidebar-open");
+    });
+
+    // Close sidebar when clicking on a nav item
+    const navItems = document.querySelectorAll(".nav-item");
+    navItems.forEach((item) => {
+      item.addEventListener("click", () => {
+        // Only close on mobile
+        if (window.innerWidth < 1200) {
+          sidebar.classList.remove("active");
+          toggle.classList.remove("active");
+          document.body.classList.remove("sidebar-open");
+        }
+      });
+    });
+
+    // Close sidebar when clicking outside (on overlay)
+    document.addEventListener("click", (e) => {
+      if (
+        window.innerWidth < 1200 &&
+        !sidebar.contains(e.target) &&
+        !sidebarToggle.contains(e.target)
+      ) {
+        if (sidebar.classList.contains("active")) {
+          sidebar.classList.remove("active");
+          toggle.classList.remove("active");
+          document.body.classList.remove("sidebar-open");
+        }
+      }
+    });
+
+    // Handle window resize
+    window.addEventListener("resize", () => {
+      if (window.innerWidth >= 1200) {
+        sidebar.classList.remove("active");
+        toggle.classList.remove("active");
+        document.body.classList.remove("sidebar-open");
+      }
+    });
+  }
+}
+
 // Navigation
 document.querySelectorAll(".nav-item").forEach((item) => {
   item.addEventListener("click", (e) => {
@@ -1042,7 +1094,7 @@ function renderCasesTable() {
             <i class="fas fa-plus"></i>
             <span>إضافة قضية جديدة</span>
           </button>
-          <button class="btn-secondary" style="background: ${secondaryColor}; color: white;">
+          <button class="btn-secondary">
             <i class="fas fa-file-excel"></i>
             <span>تصدير Excel</span>
           </button>
@@ -1431,7 +1483,7 @@ function renderAdministrativeTable() {
             <i class="fas fa-plus"></i>
             <span>إضافة عمل جديد</span>
           </button>
-          <button class="btn-secondary" style="background: ${secondaryColor}; color: white;">
+          <button class="btn-secondary">
             <i class="fas fa-file-excel"></i>
             <span>تصدير Excel</span>
           </button>
@@ -1691,6 +1743,9 @@ function showToast(message, type = "success") {
 
 // Initialize on page load
 document.addEventListener("DOMContentLoaded", () => {
+  // Initialize sidebar toggle
+  setupSidebarToggle();
+
   // Initialize theme
   const root = document.documentElement;
   root.setAttribute("data-theme", "dark");
