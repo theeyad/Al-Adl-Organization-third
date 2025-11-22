@@ -21,10 +21,21 @@ const defaultConfig = {
 let allCards = [];
 let publications = [];
 let cases = [];
+let administrative = [];
+let filteredCases = [];
+let filteredAdministrative = [];
 let currentPage = "home";
 let currentModalPage = "";
 let currentModalSection = "";
 let isDarkMode = true;
+let caseFilter = {
+  status: null,
+  searchTerm: "",
+};
+let administrativeFilter = {
+  priority: null,
+  searchTerm: "",
+};
 
 // Clock
 function updateClock() {
@@ -862,6 +873,54 @@ document.addEventListener("DOMContentLoaded", () => {
     ?.addEventListener("click", renderPublications);
 });
 
+// Filter and Search Cases
+function applyFiltersAndRender() {
+  filteredCases = cases.filter((caseItem) => {
+    // Search filter
+    const matchesSearch =
+      !caseFilter.searchTerm ||
+      caseItem.name.toLowerCase().includes(caseFilter.searchTerm) ||
+      caseItem.email.toLowerCase().includes(caseFilter.searchTerm) ||
+      caseItem.caseNumber.toLowerCase().includes(caseFilter.searchTerm);
+
+    // Status filter
+    const matchesStatus =
+      !caseFilter.status || caseItem.status === caseFilter.status;
+
+    return matchesSearch && matchesStatus;
+  });
+
+  renderCasesTable();
+}
+
+// Show Case Filter Modal
+function showCaseFilterModal() {
+  document.getElementById("case-filter-modal").classList.remove("modal-hidden");
+}
+
+// Close Case Filter Modal
+function closeCaseFilterModal() {
+  document.getElementById("case-filter-modal").classList.add("modal-hidden");
+}
+
+// Handle Filter Submit
+function handleCaseFilter(event) {
+  event.preventDefault();
+  const statusFilter = document.getElementById("filter-status-select").value;
+  caseFilter.status = statusFilter === "all" ? null : statusFilter;
+  closeCaseFilterModal();
+  applyFiltersAndRender();
+}
+
+// Reset Filters
+function resetCaseFilters() {
+  caseFilter.status = null;
+  caseFilter.searchTerm = "";
+  document.getElementById("case-search-input").value = "";
+  document.getElementById("filter-status-select").value = "all";
+  applyFiltersAndRender();
+}
+
 // Render Cases Table
 function renderCasesTable() {
   const container = document.getElementById("cases-table-container");
@@ -875,6 +934,12 @@ function renderCasesTable() {
     config.primary_action_color || defaultConfig.primary_action_color;
   const secondaryColor =
     config.secondary_action_color || defaultConfig.secondary_action_color;
+
+  // Use filtered cases for rendering
+  const displayCases =
+    filteredCases.length > 0 || caseFilter.searchTerm || caseFilter.status
+      ? filteredCases
+      : cases;
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -890,8 +955,8 @@ function renderCasesTable() {
   };
 
   const casesRows =
-    cases.length > 0
-      ? cases
+    displayCases.length > 0
+      ? displayCases
           .map((caseItem) => {
             const avatarLetters = caseItem.name
               .split(" ")
@@ -966,7 +1031,7 @@ function renderCasesTable() {
           </div>
           <div>
             <h3 style="color: ${primaryColor};">جدول القضايا</h3>
-            <p>إدارة ومتابعة جميع القضايا (${cases.length})</p>
+            <p>إدارة ومتابعة جميع القضايا (${displayCases.length})</p>
           </div>
         </div>
       </div>
@@ -986,11 +1051,17 @@ function renderCasesTable() {
           <input type="text" placeholder="بحث في القضايا..." 
                  class="search-input case-search-input" 
                  id="case-search-input"
+                 value="${caseFilter.searchTerm}"
                  style="border: 1px solid ${primaryColor}40;" />
           <label for="case-search-input"><i class="fas fa-search"></i></label>
-          <button class="filter-btn">
+          <button class="filter-btn" title="الفلاتر">
             <i class="fas fa-filter"></i>
           </button>
+          ${
+            caseFilter.searchTerm || caseFilter.status
+              ? `<button class="reset-filter-btn" title="إعادة تعيين" onclick="resetCaseFilters()" style="background: none; border: none; color: ${primaryColor}; cursor: pointer; font-size: 18px; padding: 0 8px;"><i class="fas fa-times"></i></button>`
+              : ""
+          }
         </div>
       </div>
       
@@ -1076,6 +1147,23 @@ function renderCasesTable() {
       }
     });
   });
+
+  // Search input
+  const searchInput = container.querySelector(".case-search-input");
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      caseFilter.searchTerm = e.target.value.toLowerCase();
+      applyFiltersAndRender();
+    });
+  }
+
+  // Filter button
+  const filterBtn = container.querySelector(".filter-btn");
+  if (filterBtn) {
+    filterBtn.addEventListener("click", () => {
+      showCaseFilterModal();
+    });
+  }
 }
 
 // Show Add Case Modal
@@ -1100,7 +1188,7 @@ async function handleAddCase(event) {
   cases.push(newCase);
   showToast("تمت إضافة القضية بنجاح", "success");
   closeModal("add-case-modal");
-  renderCasesTable();
+  applyFiltersAndRender();
 }
 
 // Show Case Detail Modal
@@ -1149,7 +1237,7 @@ async function handleEditCase(event) {
 
     showToast("تم تحديث القضية بنجاح", "success");
     closeModal("edit-case-modal");
-    renderCasesTable();
+    applyFiltersAndRender();
   }
 }
 
@@ -1158,7 +1246,405 @@ function deleteCase(caseItem) {
   if (confirm(`هل أنت متأكد من حذف قضية ${caseItem.name}؟`)) {
     cases = cases.filter((c) => c.id !== caseItem.id);
     showToast("تم حذف القضية بنجاح", "success");
-    renderCasesTable();
+    applyFiltersAndRender();
+  }
+}
+
+// ==================== Administrative Functions ====================
+
+// Filter and Search Administrative Tasks
+function applyAdministrativeFiltersAndRender() {
+  filteredAdministrative = administrative.filter((task) => {
+    // Search filter
+    const matchesSearch =
+      !administrativeFilter.searchTerm ||
+      task.name.toLowerCase().includes(administrativeFilter.searchTerm) ||
+      task.owner.toLowerCase().includes(administrativeFilter.searchTerm) ||
+      task.number.toLowerCase().includes(administrativeFilter.searchTerm);
+
+    // Priority filter
+    const matchesPriority =
+      !administrativeFilter.priority ||
+      task.priority === administrativeFilter.priority;
+
+    return matchesSearch && matchesPriority;
+  });
+
+  renderAdministrativeTable();
+}
+
+// Show Administrative Filter Modal
+function showAdministrativeFilterModal() {
+  document
+    .getElementById("administrative-filter-modal")
+    .classList.remove("modal-hidden");
+}
+
+// Close Administrative Filter Modal
+function closeAdministrativeFilterModal() {
+  document
+    .getElementById("administrative-filter-modal")
+    .classList.add("modal-hidden");
+}
+
+// Handle Administrative Filter Submit
+function handleAdministrativeFilter(event) {
+  event.preventDefault();
+  const priorityFilter = document.getElementById(
+    "filter-priority-select"
+  ).value;
+  administrativeFilter.priority =
+    priorityFilter === "all" ? null : priorityFilter;
+  closeAdministrativeFilterModal();
+  applyAdministrativeFiltersAndRender();
+}
+
+// Reset Administrative Filters
+function resetAdministrativeFilters() {
+  administrativeFilter.priority = null;
+  administrativeFilter.searchTerm = "";
+  document.getElementById("administrative-search-input").value = "";
+  document.getElementById("filter-priority-select").value = "all";
+  applyAdministrativeFiltersAndRender();
+}
+
+// Render Administrative Table
+function renderAdministrativeTable() {
+  const container = document.getElementById("administrative-table-container");
+  if (!container) return;
+
+  const config = window.elementSdk?.config || defaultConfig;
+  const bgColor = config.background_color || defaultConfig.background_color;
+  const surfaceColor = config.surface_color || defaultConfig.surface_color;
+  const textColor = config.text_color || defaultConfig.text_color;
+  const primaryColor =
+    config.primary_action_color || defaultConfig.primary_action_color;
+  const secondaryColor =
+    config.secondary_action_color || defaultConfig.secondary_action_color;
+
+  // Use filtered tasks for rendering
+  const displayTasks =
+    filteredAdministrative.length > 0 ||
+    administrativeFilter.searchTerm ||
+    administrativeFilter.priority
+      ? filteredAdministrative
+      : administrative;
+
+  const getPriorityStyle = (priority) => {
+    switch (priority) {
+      case "عالية":
+        return "background: #ef4444; color: white;";
+      case "متوسطة":
+        return "background: #f59e0b; color: white;";
+      case "منخفضة":
+        return "background: #3b82f6; color: white;";
+      default:
+        return "background: #6b7280; color: white;";
+    }
+  };
+
+  const administrativeRows =
+    displayTasks.length > 0
+      ? displayTasks
+          .map((task) => {
+            const avatarLetters = task.owner
+              .split(" ")
+              .slice(0, 2)
+              .map((n) => n[0])
+              .join("");
+            return `
+      <tr class="table-row" data-administrative-id="${task.id}">
+        <td>
+          <div class="table-cell-user">
+            <div class="user-avatar-small" style="background: ${primaryColor}30; color: ${primaryColor};">${avatarLetters}</div>
+            <div>
+              <div class="user-name-small">${task.name}</div>
+              <div class="user-email-small">${task.owner}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <span class="case-id" style="background: ${primaryColor}20; color: ${primaryColor};">${
+              task.number
+            }</span>
+        </td>
+        <td>
+          <div class="table-cell-date">
+            <i class="fas fa-calendar-day"></i>
+            <span>${task.date}</span>
+          </div>
+        </td>
+        <td>
+          <span class="case-status" style="${getPriorityStyle(task.priority)}">
+            <i class="fas fa-exclamation-circle"></i>${task.priority}
+          </span>
+        </td>
+        <td>
+          <div class="table-cell-actions">
+            <button class="action-btn view-administrative-btn" title="عرض" data-administrative-id="${
+              task.id
+            }">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="action-btn edit-administrative-btn" style="background: ${primaryColor}; color: ${bgColor};" title="تعديل" data-administrative-id="${
+              task.id
+            }">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn action-btn-delete delete-administrative-btn" title="حذف" data-administrative-id="${
+              task.id
+            }">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+          })
+          .join("")
+      : `
+    <tr>
+      <td colspan="5" style="text-align: center; padding: 40px; color: #9ca3af;">
+        <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+        لا توجد أعمال إدارية حالياً
+      </td>
+    </tr>
+  `;
+
+  container.innerHTML = `
+    <div class="cases-table-wrapper" style="background-color: ${surfaceColor}; color: ${textColor};">
+      <div class="cases-table-header" style="background: linear-gradient(135deg, ${surfaceColor} 0%, ${bgColor} 100%);">
+        <div class="cases-table-title">
+          <div class="cases-table-icon" style="background: ${primaryColor};">
+            <i class="fas fa-book" style="color: ${bgColor};"></i>
+          </div>
+          <div>
+            <h3 style="color: ${primaryColor};">الأعمال الإدارية</h3>
+            <p>إدارة ومتابعة الأعمال الإدارية (${displayTasks.length})</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="cases-table-controls">
+        <div class="cases-table-buttons">
+          <button class="btn-primary add-administrative-btn" style="background: ${primaryColor}; color: ${bgColor};">
+            <i class="fas fa-plus"></i>
+            <span>إضافة عمل جديد</span>
+          </button>
+          <button class="btn-secondary" style="background: ${secondaryColor}; color: white;">
+            <i class="fas fa-file-excel"></i>
+            <span>تصدير Excel</span>
+          </button>
+        </div>
+        <div class="cases-table-search">
+          <input type="text" placeholder="بحث في الأعمال الإدارية..." 
+                 class="search-input administrative-search-input" 
+                 id="administrative-search-input"
+                 value="${administrativeFilter.searchTerm}"
+                 style="border: 1px solid ${primaryColor}40;" />
+          <label for="administrative-search-input"><i class="fas fa-search"></i></label>
+          <button class="filter-btn" title="الفلاتر">
+            <i class="fas fa-filter"></i>
+          </button>
+          ${
+            administrativeFilter.searchTerm || administrativeFilter.priority
+              ? `<button class="reset-filter-btn" title="إعادة تعيين" onclick="resetAdministrativeFilters()" style="background: none; border: none; color: ${primaryColor}; cursor: pointer; font-size: 18px; padding: 0 8px;"><i class="fas fa-times"></i></button>`
+              : ""
+          }
+        </div>
+      </div>
+      
+      <div class="cases-table-scroll">
+        <table class="cases-table">
+          <thead>
+            <tr style="border-color: ${primaryColor}40; background: ${bgColor};">
+              <th style="color: ${primaryColor};">
+                <div>
+                  <i class="fas fa-user"></i>
+                  <span>اسم العمل / الصاحب</span>
+                </div>
+              </th>
+              <th style="color: ${primaryColor};">
+                <div>
+                  <i class="fas fa-hashtag"></i>
+                  <span>رقم العمل</span>
+                </div>
+              </th>
+              <th style="color: ${primaryColor};">
+                <div>
+                  <i class="fas fa-calendar"></i>
+                  <span>تاريخ الموعد</span>
+                </div>
+              </th>
+              <th style="color: ${primaryColor};">
+                <div>
+                  <i class="fas fa-exclamation-circle"></i>
+                  <span>الأولوية</span>
+                </div>
+              </th>
+              <th style="color: ${primaryColor};">
+                <div>
+                  <i class="fas fa-tools"></i>
+                  <span>الإجراءات</span>
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            ${administrativeRows}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  // Attach event listeners
+  const addBtn = container.querySelector(".add-administrative-btn");
+  if (addBtn) {
+    addBtn.addEventListener("click", showAddAdministrativeModal);
+  }
+
+  // View buttons
+  container.querySelectorAll(".view-administrative-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const taskId = btn.dataset.administrativeId;
+      const task = administrative.find((t) => t.id === taskId);
+      if (task) {
+        showAdministrativeDetailModal(task);
+      }
+    });
+  });
+
+  // Edit buttons
+  container.querySelectorAll(".edit-administrative-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const taskId = btn.dataset.administrativeId;
+      const task = administrative.find((t) => t.id === taskId);
+      if (task) {
+        showEditAdministrativeModal(task);
+      }
+    });
+  });
+
+  // Delete buttons
+  container.querySelectorAll(".delete-administrative-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const taskId = btn.dataset.administrativeId;
+      const task = administrative.find((t) => t.id === taskId);
+      if (task) {
+        deleteAdministrative(task);
+      }
+    });
+  });
+
+  // Search input
+  const searchInput = container.querySelector(".administrative-search-input");
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      administrativeFilter.searchTerm = e.target.value.toLowerCase();
+      applyAdministrativeFiltersAndRender();
+    });
+  }
+
+  // Filter button
+  const filterBtn = container.querySelector(".filter-btn");
+  if (filterBtn) {
+    filterBtn.addEventListener("click", () => {
+      showAdministrativeFilterModal();
+    });
+  }
+}
+
+// Show Add Administrative Modal
+function showAddAdministrativeModal() {
+  document
+    .getElementById("add-administrative-modal")
+    .classList.remove("modal-hidden");
+  document.getElementById("add-administrative-form").reset();
+}
+
+// Handle Add Administrative Form Submission
+async function handleAddAdministrative(event) {
+  event.preventDefault();
+
+  const newTask = {
+    id: Date.now().toString(),
+    name: document.getElementById("administrative-name").value,
+    owner: document.getElementById("administrative-owner").value,
+    number: document.getElementById("administrative-number").value,
+    date: document.getElementById("administrative-date").value,
+    priority: document.getElementById("administrative-priority").value,
+  };
+
+  administrative.push(newTask);
+  showToast("تمت إضافة العمل الإداري بنجاح", "success");
+  closeModal("add-administrative-modal");
+  applyAdministrativeFiltersAndRender();
+}
+
+// Show Administrative Detail Modal
+function showAdministrativeDetailModal(task) {
+  document.getElementById("detail-administrative-name").textContent = task.name;
+  document.getElementById("detail-administrative-owner").textContent =
+    task.owner;
+  document.getElementById("detail-administrative-number").textContent =
+    task.number;
+  document.getElementById("detail-administrative-date").textContent = task.date;
+  document.getElementById("detail-administrative-priority").textContent =
+    task.priority;
+  document
+    .getElementById("view-administrative-modal")
+    .classList.remove("modal-hidden");
+
+  document.getElementById("edit-administrative-from-detail-btn").onclick =
+    () => {
+      closeModal("view-administrative-modal");
+      showEditAdministrativeModal(task);
+    };
+}
+
+// Show Edit Administrative Modal
+function showEditAdministrativeModal(task) {
+  document.getElementById("edit-administrative-id").value = task.id;
+  document.getElementById("edit-administrative-name").value = task.name;
+  document.getElementById("edit-administrative-owner").value = task.owner;
+  document.getElementById("edit-administrative-number").value = task.number;
+  document.getElementById("edit-administrative-date").value = task.date;
+  document.getElementById("edit-administrative-priority").value = task.priority;
+  document
+    .getElementById("edit-administrative-modal")
+    .classList.remove("modal-hidden");
+}
+
+// Handle Edit Administrative Form Submission
+async function handleEditAdministrative(event) {
+  event.preventDefault();
+
+  const taskId = document.getElementById("edit-administrative-id").value;
+  const taskIndex = administrative.findIndex((t) => t.id === taskId);
+
+  if (taskIndex !== -1) {
+    administrative[taskIndex] = {
+      id: taskId,
+      name: document.getElementById("edit-administrative-name").value,
+      owner: document.getElementById("edit-administrative-owner").value,
+      number: document.getElementById("edit-administrative-number").value,
+      date: document.getElementById("edit-administrative-date").value,
+      priority: document.getElementById("edit-administrative-priority").value,
+    };
+
+    showToast("تم تحديث العمل الإداري بنجاح", "success");
+    closeModal("edit-administrative-modal");
+    applyAdministrativeFiltersAndRender();
+  }
+}
+
+// Delete Administrative Task
+function deleteAdministrative(task) {
+  if (confirm(`هل أنت متأكد من حذف العمل "${task.name}"؟`)) {
+    administrative = administrative.filter((t) => t.id !== task.id);
+    showToast("تم حذف العمل الإداري بنجاح", "success");
+    applyAdministrativeFiltersAndRender();
   }
 }
 
@@ -1243,8 +1729,63 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  const filterCaseModal = document.getElementById("case-filter-modal");
+  if (filterCaseModal) {
+    filterCaseModal.addEventListener("click", (e) => {
+      if (e.target === filterCaseModal) {
+        closeCaseFilterModal();
+      }
+    });
+  }
+
+  // Administrative modals click-outside listeners
+  const addAdministrativeModal = document.getElementById(
+    "add-administrative-modal"
+  );
+  if (addAdministrativeModal) {
+    addAdministrativeModal.addEventListener("click", (e) => {
+      if (e.target === addAdministrativeModal) {
+        closeModal("add-administrative-modal");
+      }
+    });
+  }
+
+  const editAdministrativeModal = document.getElementById(
+    "edit-administrative-modal"
+  );
+  if (editAdministrativeModal) {
+    editAdministrativeModal.addEventListener("click", (e) => {
+      if (e.target === editAdministrativeModal) {
+        closeModal("edit-administrative-modal");
+      }
+    });
+  }
+
+  const viewAdministrativeModal = document.getElementById(
+    "view-administrative-modal"
+  );
+  if (viewAdministrativeModal) {
+    viewAdministrativeModal.addEventListener("click", (e) => {
+      if (e.target === viewAdministrativeModal) {
+        closeModal("view-administrative-modal");
+      }
+    });
+  }
+
+  const filterAdministrativeModal = document.getElementById(
+    "administrative-filter-modal"
+  );
+  if (filterAdministrativeModal) {
+    filterAdministrativeModal.addEventListener("click", (e) => {
+      if (e.target === filterAdministrativeModal) {
+        closeAdministrativeFilterModal();
+      }
+    });
+  }
+
   renderServiceCards();
   renderPublications();
   renderCasesTable();
+  renderAdministrativeTable();
   renderCards();
 });

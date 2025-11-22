@@ -83,11 +83,8 @@
     <main class="main-content">
         <!-- Top Bar -->
         <header class="top-bar">
-            <div class="search-container">
-                <input type="text" id="search-input" class="search-input" placeholder="بحث في القضايا والعملاء...">
-                <label for="search-input">
-                    <i class="fas fa-search search-icon"></i>
-                </label>
+            <div class="quote-container">
+                <p class="dashboard-quote">وَإِذَا حَكَمْتُم بَيْنَ النَّاسِ أَن تَحْكُمُوا بِالْعَدْلِ</p>
             </div>
             <div class="header-controls">
                 <div id="clock" class="clock"></div>
@@ -216,6 +213,16 @@
                         <h2>جدول القضايا</h2>
                     </div>
                     <div id="cases-table-container"></div>
+                </section>
+            </div>
+
+            <!-- Administrative Page -->
+            <div id="Administrative-page" class="page-content page-hidden">
+                <section class="content-section">
+                    <div class="section-header">
+                        <h2>الأعمال الإدارية</h2>
+                    </div>
+                    <div id="administrative-table-container"></div>
                 </section>
             </div>
         </div>
@@ -545,6 +552,170 @@
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">حفظ التغييرات</button>
                     <button type="button" onclick="closeModal('edit-case-modal')" class="btn-secondary">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Case Filter Modal -->
+    <div id="case-filter-modal" class="modal modal-hidden">
+        <div class="modal-content">
+            <h3>فلترة القضايا</h3>
+            <form id="case-filter-form" onsubmit="handleCaseFilter(event)">
+                <div class="form-group">
+                    <label>الحالة</label>
+                    <select id="filter-status-select" required
+                        style="width: 100%; padding: 10px 12px; background-color: #111827; border: 1px solid #374151; color: #ffffff; border-radius: 8px; font-size: 14px;">
+                        <option value="all">الكل</option>
+                        <option value="نشطة">نشطة</option>
+                        <option value="معلقة">معلقة</option>
+                        <option value="مغلقة">مغلقة</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">تطبيق الفلترة</button>
+                    <button type="button" onclick="closeCaseFilterModal()" class="btn-secondary">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Administrative Task Modal -->
+    <div id="add-administrative-modal" class="modal modal-hidden">
+        <div class="modal-content">
+            <h3>إضافة عمل إداري جديد</h3>
+            <form id="add-administrative-form" onsubmit="handleAddAdministrative(event)">
+                <div class="form-group">
+                    <label>اسم العمل</label>
+                    <input type="text" id="administrative-name" required>
+                </div>
+                <div class="form-group">
+                    <label>صاحب العمل</label>
+                    <input type="text" id="administrative-owner" required>
+                </div>
+                <div class="form-group">
+                    <label>رقم العمل</label>
+                    <input type="text" id="administrative-number" required>
+                </div>
+                <div class="form-group">
+                    <label>تاريخ الموعد</label>
+                    <input type="date" id="administrative-date" required>
+                </div>
+                <div class="form-group">
+                    <label>الأولوية</label>
+                    <select id="administrative-priority" required
+                        style="width: 100%; padding: 10px 12px; background-color: #111827; border: 1px solid #374151; color: #ffffff; border-radius: 8px; font-size: 14px;">
+                        <option value="عالية">عالية</option>
+                        <option value="متوسطة">متوسطة</option>
+                        <option value="منخفضة">منخفضة</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">إضافة العمل</button>
+                    <button type="button" onclick="closeModal('add-administrative-modal')"
+                        class="btn-secondary">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Administrative Task Detail Modal -->
+    <div id="view-administrative-modal" class="modal modal-hidden">
+        <div class="modal-content" style="max-width: 600px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: #f3c623;">تفاصيل العمل الإداري</h3>
+                <button type="button" onclick="closeModal('view-administrative-modal')"
+                    style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer;">&times;</button>
+            </div>
+            <div style="line-height: 1.8; color: #d1d5db;">
+                <div style="margin-bottom: 20px;">
+                    <label style="color: #f3c623; font-weight: 600;">اسم العمل:</label>
+                    <p id="detail-administrative-name" style="margin: 5px 0 0 0;"></p>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="color: #f3c623; font-weight: 600;">صاحب العمل:</label>
+                    <p id="detail-administrative-owner" style="margin: 5px 0 0 0;"></p>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="color: #f3c623; font-weight: 600;">رقم العمل:</label>
+                    <p id="detail-administrative-number" style="margin: 5px 0 0 0;"></p>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="color: #f3c623; font-weight: 600;">تاريخ الموعد:</label>
+                    <p id="detail-administrative-date" style="margin: 5px 0 0 0;"></p>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="color: #f3c623; font-weight: 600;">الأولوية:</label>
+                    <p id="detail-administrative-priority" style="margin: 5px 0 0 0;"></p>
+                </div>
+            </div>
+            <div class="form-actions" style="margin-top: 20px;">
+                <button type="button" id="edit-administrative-from-detail-btn" class="btn-primary">تعديل</button>
+                <button type="button" onclick="closeModal('view-administrative-modal')"
+                    class="btn-secondary">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Administrative Task Modal -->
+    <div id="edit-administrative-modal" class="modal modal-hidden">
+        <div class="modal-content">
+            <h3>تعديل العمل الإداري</h3>
+            <form id="edit-administrative-form" onsubmit="handleEditAdministrative(event)">
+                <input type="hidden" id="edit-administrative-id">
+                <div class="form-group">
+                    <label>اسم العمل</label>
+                    <input type="text" id="edit-administrative-name" required>
+                </div>
+                <div class="form-group">
+                    <label>صاحب العمل</label>
+                    <input type="text" id="edit-administrative-owner" required>
+                </div>
+                <div class="form-group">
+                    <label>رقم العمل</label>
+                    <input type="text" id="edit-administrative-number" required>
+                </div>
+                <div class="form-group">
+                    <label>تاريخ الموعد</label>
+                    <input type="date" id="edit-administrative-date" required>
+                </div>
+                <div class="form-group">
+                    <label>الأولوية</label>
+                    <select id="edit-administrative-priority" required
+                        style="width: 100%; padding: 10px 12px; background-color: #111827; border: 1px solid #374151; color: #ffffff; border-radius: 8px; font-size: 14px;">
+                        <option value="عالية">عالية</option>
+                        <option value="متوسطة">متوسطة</option>
+                        <option value="منخفضة">منخفضة</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">حفظ التغييرات</button>
+                    <button type="button" onclick="closeModal('edit-administrative-modal')"
+                        class="btn-secondary">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Administrative Filter Modal -->
+    <div id="administrative-filter-modal" class="modal modal-hidden">
+        <div class="modal-content">
+            <h3>فلترة الأعمال الإدارية</h3>
+            <form id="administrative-filter-form" onsubmit="handleAdministrativeFilter(event)">
+                <div class="form-group">
+                    <label>الأولوية</label>
+                    <select id="filter-priority-select" required
+                        style="width: 100%; padding: 10px 12px; background-color: #111827; border: 1px solid #374151; color: #ffffff; border-radius: 8px; font-size: 14px;">
+                        <option value="all">الكل</option>
+                        <option value="عالية">عالية</option>
+                        <option value="متوسطة">متوسطة</option>
+                        <option value="منخفضة">منخفضة</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">تطبيق الفلترة</button>
+                    <button type="button" onclick="closeAdministrativeFilterModal()"
+                        class="btn-secondary">إلغاء</button>
                 </div>
             </form>
         </div>
