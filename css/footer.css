@@ -96,6 +96,7 @@ footer {
 .footer-brand .lawyer-name {
   margin: 0;
   font-size: 0.75rem;
+  color: var(--color-primary);
 }
 
 .footer-brand .lawyer-name a {
