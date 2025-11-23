@@ -14,11 +14,13 @@ function exportCasesToExcel() {
 
   // Create CSV content
   let csvContent = "data:text/csv;charset=utf-8,";
-  csvContent += "اسم العميل,البريد الإلكتروني,رقم القضية,تاريخ الجلسة,الحالة\n";
+  csvContent +=
+    "اسم العميل,البريد الإلكتروني,رقم المحضر,رقم القضية,تاريخ الجلسة,الحالة\n";
 
   cases.forEach((caseItem) => {
     const row = [
       caseItem.name,
+      caseItem.recordNumber,
       caseItem.email,
       caseItem.caseNumber,
       caseItem.date,
@@ -1094,6 +1096,11 @@ function renderCasesTable() {
         </td>
         <td>
           <span class="case-id" style="background: ${primaryColor}20; color: ${primaryColor};">${
+              caseItem.recordNumber
+            }</span>
+        </td>
+        <td>
+          <span class="case-id" style="background: ${primaryColor}20; color: ${primaryColor};">${
               caseItem.caseNumber
             }</span>
         </td>
@@ -1107,6 +1114,13 @@ function renderCasesTable() {
           <span class="case-status" style="${getStatusStyle(caseItem.status)}">
             <i class="fas fa-check-circle"></i>${caseItem.status}
           </span>
+        </td>
+        <td>
+          <button class="action-btn notes-btn" title="الملاحظات" data-case-id="${
+            caseItem.id
+          }" style="background: ${primaryColor}30; color: ${primaryColor};">
+            <i class="fas fa-sticky-note"></i>
+          </button>
         </td>
         <td>
           <div class="table-cell-actions">
@@ -1133,7 +1147,7 @@ function renderCasesTable() {
           .join("")
       : `
     <tr>
-      <td colspan="5" style="text-align: center; padding: 40px; color: #9ca3af;">
+      <td colspan="7" style="text-align: center; padding: 40px; color: #9ca3af;">
         <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
         لا توجد قضايا حالياً
       </td>
@@ -1198,6 +1212,12 @@ function renderCasesTable() {
               <th style="color: ${primaryColor};">
                 <div>
                   <i class="fas fa-hashtag"></i>
+                  <span>رقم المحضر</span>
+                </div>
+              </th>
+              <th style="color: ${primaryColor};">
+                <div>
+                  <i class="fas fa-hashtag"></i>
                   <span>رقم القضية</span>
                 </div>
               </th>
@@ -1211,6 +1231,12 @@ function renderCasesTable() {
                 <div>
                   <i class="fas fa-cog"></i>
                   <span>الحالة</span>
+                </div>
+              </th>
+              <th style="color: ${primaryColor};">
+                <div>
+                  <i class="fas fa-sticky-note"></i>
+                  <span>الملاحظات</span>
                 </div>
               </th>
               <th style="color: ${primaryColor};">
@@ -1268,6 +1294,17 @@ function renderCasesTable() {
     });
   });
 
+  // Notes buttons
+  container.querySelectorAll(".notes-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const caseId = btn.dataset.caseId;
+      const caseItem = cases.find((c) => c.id === caseId);
+      if (caseItem) {
+        showCaseNotesModal(caseItem);
+      }
+    });
+  });
+
   // Search input
   const searchInput = container.querySelector(".case-search-input");
   if (searchInput) {
@@ -1299,10 +1336,12 @@ async function handleAddCase(event) {
   const newCase = {
     id: Date.now().toString(),
     name: document.getElementById("case-name").value,
+    recordNumber: document.getElementById("case-record-number").value,
     email: document.getElementById("case-email").value,
     caseNumber: document.getElementById("case-number").value,
     date: document.getElementById("case-date").value,
     status: document.getElementById("case-status").value,
+    notes: "",
   };
 
   cases.push(newCase);
@@ -1314,6 +1353,8 @@ async function handleAddCase(event) {
 // Show Case Detail Modal
 function showCaseDetailModal(caseItem) {
   document.getElementById("detail-case-name").textContent = caseItem.name;
+  document.getElementById("detail-case-record-number").textContent =
+    caseItem.recordNumber;
   document.getElementById("detail-case-email").textContent = caseItem.email;
   document.getElementById("detail-case-number").textContent =
     caseItem.caseNumber;
@@ -1331,6 +1372,8 @@ function showCaseDetailModal(caseItem) {
 function showEditCaseModal(caseItem) {
   document.getElementById("edit-case-id").value = caseItem.id;
   document.getElementById("edit-case-name").value = caseItem.name;
+  document.getElementById("edit-case-record-number").value =
+    caseItem.recordNumber;
   document.getElementById("edit-case-email").value = caseItem.email;
   document.getElementById("edit-case-number").value = caseItem.caseNumber;
   document.getElementById("edit-case-date").value = caseItem.date;
@@ -1349,10 +1392,12 @@ async function handleEditCase(event) {
     cases[caseIndex] = {
       id: caseId,
       name: document.getElementById("edit-case-name").value,
+      recordNumber: document.getElementById("edit-case-record-number").value,
       email: document.getElementById("edit-case-email").value,
       caseNumber: document.getElementById("edit-case-number").value,
       date: document.getElementById("edit-case-date").value,
       status: document.getElementById("edit-case-status").value,
+      notes: cases[caseIndex].notes,
     };
 
     showToast("تم تحديث القضية بنجاح", "success");
@@ -1368,6 +1413,25 @@ function deleteCase(caseItem) {
     showToast("تم حذف القضية بنجاح", "success");
     applyFiltersAndRender();
   }
+}
+
+// Show Case Notes Modal
+function showCaseNotesModal(caseItem) {
+  const notesTextarea = document.getElementById("case-notes-text");
+  notesTextarea.value = caseItem.notes || "";
+
+  document.getElementById("case-notes-modal").classList.remove("modal-hidden");
+
+  // Store current case ID for saving
+  document.getElementById("save-notes-btn").onclick = () => {
+    const caseIndex = cases.findIndex((c) => c.id === caseItem.id);
+    if (caseIndex !== -1) {
+      cases[caseIndex].notes = notesTextarea.value;
+      showToast("تم حفظ الملاحظات بنجاح", "success");
+      closeModal("case-notes-modal");
+      applyFiltersAndRender();
+    }
+  };
 }
 
 // ==================== Administrative Functions ====================
@@ -1500,6 +1564,13 @@ function renderAdministrativeTable() {
           </span>
         </td>
         <td>
+          <button class="action-btn notes-btn" title="الملاحظات" data-administrative-id="${
+            task.id
+          }" style="background: ${primaryColor}30; color: ${primaryColor};">
+            <i class="fas fa-sticky-note"></i>
+          </button>
+        </td>
+        <td>
           <div class="table-cell-actions">
             <button class="action-btn view-administrative-btn" title="عرض" data-administrative-id="${
               task.id
@@ -1524,7 +1595,7 @@ function renderAdministrativeTable() {
           .join("")
       : `
     <tr>
-      <td colspan="5" style="text-align: center; padding: 40px; color: #9ca3af;">
+      <td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">
         <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
         لا توجد أعمال إدارية حالياً
       </td>
@@ -1606,6 +1677,12 @@ function renderAdministrativeTable() {
               </th>
               <th style="color: ${primaryColor};">
                 <div>
+                  <i class="fas fa-sticky-note"></i>
+                  <span>الملاحظات</span>
+                </div>
+              </th>
+              <th style="color: ${primaryColor};">
+                <div>
                   <i class="fas fa-tools"></i>
                   <span>الإجراءات</span>
                 </div>
@@ -1659,6 +1736,17 @@ function renderAdministrativeTable() {
     });
   });
 
+  // Notes buttons
+  container.querySelectorAll(".notes-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const taskId = btn.dataset.administrativeId;
+      const task = administrative.find((t) => t.id === taskId);
+      if (task) {
+        showAdministrativeNotesModal(task);
+      }
+    });
+  });
+
   // Search input
   const searchInput = container.querySelector(".administrative-search-input");
   if (searchInput) {
@@ -1696,6 +1784,7 @@ async function handleAddAdministrative(event) {
     number: document.getElementById("administrative-number").value,
     date: document.getElementById("administrative-date").value,
     priority: document.getElementById("administrative-priority").value,
+    notes: "",
   };
 
   administrative.push(newTask);
@@ -1738,6 +1827,22 @@ function showEditAdministrativeModal(task) {
     .classList.remove("modal-hidden");
 }
 
+// Show Administrative Notes Modal
+function showAdministrativeNotesModal(task) {
+  const notesTextarea = document.getElementById("case-notes-text");
+  notesTextarea.value = task.notes || "";
+  document.getElementById("case-notes-modal").classList.remove("modal-hidden");
+  document.getElementById("save-notes-btn").onclick = () => {
+    const taskIndex = administrative.findIndex((t) => t.id === task.id);
+    if (taskIndex !== -1) {
+      administrative[taskIndex].notes = notesTextarea.value;
+      showToast("تم حفظ الملاحظات بنجاح", "success");
+      closeModal("case-notes-modal");
+      applyAdministrativeFiltersAndRender();
+    }
+  };
+}
+
 // Handle Edit Administrative Form Submission
 async function handleEditAdministrative(event) {
   event.preventDefault();
@@ -1753,6 +1858,7 @@ async function handleEditAdministrative(event) {
       number: document.getElementById("edit-administrative-number").value,
       date: document.getElementById("edit-administrative-date").value,
       priority: document.getElementById("edit-administrative-priority").value,
+      notes: administrative[taskIndex].notes,
     };
 
     showToast("تم تحديث العمل الإداري بنجاح", "success");

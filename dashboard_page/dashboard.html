@@ -462,6 +462,10 @@
                     <input type="email" id="case-email" required>
                 </div>
                 <div class="form-group">
+                    <label>رقم المحضر</label>
+                    <input type="text" id="case-record-number" required>
+                </div>
+                <div class="form-group">
                     <label>رقم القضية</label>
                     <input type="text" id="case-number" required>
                 </div>
@@ -504,6 +508,10 @@
                     <p id="detail-case-email" style="margin: 5px 0 0 0;"></p>
                 </div>
                 <div style="margin-bottom: 20px;">
+                    <label style="color: #f3c623; font-weight: 600;">رقم المحضر:</label>
+                    <p id="detail-case-record-number" style="margin: 5px 0 0 0;"></p>
+                </div>
+                <div style="margin-bottom: 20px;">
                     <label style="color: #f3c623; font-weight: 600;">رقم القضية:</label>
                     <p id="detail-case-number" style="margin: 5px 0 0 0;"></p>
                 </div>
@@ -538,6 +546,10 @@
                     <input type="email" id="edit-case-email" required>
                 </div>
                 <div class="form-group">
+                    <label>رقم المحضر</label>
+                    <input type="text" id="edit-case-record-number" required>
+                </div>
+                <div class="form-group">
                     <label>رقم القضية</label>
                     <input type="text" id="edit-case-number" required>
                 </div>
@@ -559,6 +571,24 @@
                     <button type="button" onclick="closeModal('edit-case-modal')" class="btn-secondary">إلغاء</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Case Notes Modal -->
+    <div id="case-notes-modal" class="modal modal-hidden">
+        <div class="modal-content" style="max-width: 600px; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: #f3c623;">الملاحظات</h3>
+                <button type="button" onclick="closeModal('case-notes-modal')"
+                    style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer;">&times;</button>
+            </div>
+            <textarea id="case-notes-text"
+                style="flex: 1; background-color: #111827; border: 1px solid #374151; color: #ffffff; padding: 12px; border-radius: 8px; font-size: 14px; font-family: Cairo, sans-serif; min-height: 300px; resize: vertical;"
+                placeholder="اكتب ملاحظاتك هنا..."></textarea>
+            <div class="form-actions" style="margin-top: 20px;">
+                <button type="button" id="save-notes-btn" class="btn-primary">حفظ الملاحظات</button>
+                <button type="button" onclick="closeModal('case-notes-modal')" class="btn-secondary">إغلاق</button>
+            </div>
         </div>
     </div>
 
